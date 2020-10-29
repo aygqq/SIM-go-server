@@ -1,0 +1,941 @@
+openapi: 3.0.0
+info:
+  title: Power control block
+  description: This API was created to monitor states of Power Control Block and send
+    some commands to it.
+  version: "1.0"
+servers:
+- url: https://localhost
+  description: Localhost server
+paths:
+  /power:
+    get:
+      tags:
+      - PowerConfig
+      summary: Запрос «Состояния модулей питания»
+      operationId: getPwrCfg
+      responses:
+        "200":
+          description: Power states
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/powercfg'
+    put:
+      tags:
+      - PowerConfig
+      summary: Команда «Установка заданной конфигурации»
+      operationId: setPwrCfg
+      parameters:
+      - name: pc
+        in: query
+        description: PC power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: wifi
+        in: query
+        description: WIFI power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: relay1
+        in: query
+        description: Relay 1 power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: relay2
+        in: query
+        description: Relay 2 power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: modem1
+        in: query
+        description: Modem 1 power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: modem2
+        in: query
+        description: Modem 2 power control
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: Power states
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /power/battery:
+    get:
+      tags:
+      - Battery
+      summary: Запрос «Состояние батареи»
+      operationId: getPwrBat
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/battery'
+  /power/relay/[rel_id]:
+    get:
+      tags:
+      - PowerRelay
+      summary: Запрос «Состояния реле»
+      operationId: getPwrRelayByID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/relay'
+    put:
+      tags:
+      - PowerRelay
+      summary: Команда «Управление реле»
+      operationId: setPwrRelayByID
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /power/wifi:
+    get:
+      tags:
+      - PowerWiFi
+      summary: Запрос «Состояние модуля питания WiFi»
+      operationId: getPwrWiFi
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/wifi'
+    put:
+      tags:
+      - PowerWiFi
+      summary: Команда «Управление модулем питания WiFi»
+      operationId: setPwrWiFi
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /power/pc:
+    get:
+      tags:
+      - PowerPC
+      summary: Запрос «Состояние модуля питания мини ЭВМ»
+      operationId: getPwrPC
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pc'
+    put:
+      tags:
+      - PowerPC
+      summary: Команда «Управление модулем питания мини ЭВМ»
+      operationId: setPwrPC
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /power/modem/[modem_id]:
+    get:
+      tags:
+      - PowerModem
+      summary: Запрос «Состояние модулей питания БС»
+      operationId: getPwrModemByID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/modem'
+    put:
+      tags:
+      - PowerModem
+      summary: Команда «Вкл/Откл питание БС Х»
+      operationId: setPwrModemByID
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /modem/state/[modem_id]:
+    get:
+      tags:
+      - ModemState
+      summary: Запрос «Статус работы БС»
+      operationId: getModemStByID
+      responses:
+        "200":
+          description: Modem states
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/modemstate'
+  /modem/state/flymode/[modem_id]:
+    get:
+      tags:
+      - ModemFlymode
+      summary: Запрос «Авиарежим БС»
+      operationId: getModemFlyByID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flymode'
+    put:
+      tags:
+      - ModemFlymode
+      summary: Команда «Вкл/Откл авиарежим БС Х»
+      operationId: setModemFlyByID
+      parameters:
+      - name: flymode
+        in: query
+        description: Flightmode state
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /modem/state/imei/[modem_id]:
+    get:
+      tags:
+      - ModemIMEI
+      summary: Запрос «Текущий IMEI»
+      operationId: getModemImeiByID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/imei'
+    put:
+      tags:
+      - ModemIMEI
+      summary: Команда «Установить новый IMEI»
+      operationId: setModemImeiByID
+      parameters:
+      - name: imei
+        in: query
+        description: IMEI of modem
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /modem/state/sim/[modem_id]:
+    get:
+      tags:
+      - ModemSIM
+      summary: Запрос «Установленная сим-карта»
+      operationId: getModemSimByID
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sim'
+    put:
+      tags:
+      - ModemSIM
+      summary: Команда «Выбрать сим-карту Х на блоке У»
+      operationId: setModemSimByID
+      parameters:
+      - name: sim_num
+        in: query
+        description: Number of current sim-card in bank
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /modem/conn/[modem_id]:
+    get:
+      tags:
+      - ModemConn
+      summary: Запрос «Статус сети»
+      operationId: getModemConnByID
+      responses:
+        "200":
+          description: Power states
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/modemconn'
+  /sms/lock:
+    put:
+      tags:
+      - SmsLock
+      summary: Команда «Блокировка входящих сообщений»
+      operationId: setSmsLock
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /buttons/lock:
+    put:
+      tags:
+      - ButtonsLock
+      summary: Команда «Блокировка обработки кнопок»
+      operationId: setButtonsLock
+      parameters:
+      - name: state
+        in: query
+        description: True if you want to turn power on, false otherwise
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /files/config:
+    get:
+      tags:
+      - FileConfig
+      summary: Запрос «Файл конфигурации»
+      operationId: getFileConfig
+      responses:
+        "200":
+          description: Config file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/filecfg'
+    put:
+      tags:
+      - FileConfig
+      summary: Команда «Задать файл конфигурации»
+      operationId: setFileConfig
+      requestBody:
+        $ref: '#/components/requestBodies/filecfg'
+      responses:
+        "200":
+          description: Config file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+  /files/phones:
+    get:
+      tags:
+      - FilePhones
+      summary: Запрос «Разрешенные комбинации SIM+IMEI»
+      operationId: getFilePhones
+      responses:
+        "200":
+          description: Phones file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/filephones'
+    put:
+      tags:
+      - FilePhones
+      summary: Команда «Задать файл номеров»
+      operationId: setFileNPhones
+      requestBody:
+        $ref: '#/components/requestBodies/filephone'
+      responses:
+        "200":
+          description: Phones file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responce'
+components:
+  schemas:
+    powercfg:
+      title: ResponsePower
+      type: object
+      properties:
+        results:
+          $ref: '#/components/schemas/powercfg_results'
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `UNKNOWN_ERROR`:\
+            \ The request could not be processed due to a server error. The request\
+            \ may succeed if you try again."
+          example: OK
+      example:
+        results:
+          wifi: true
+          pc: true
+          modem2: true
+          power_stat: true
+          relay1: true
+          relay2: true
+          modem1: true
+          bat_level: 47
+        status: OK
+    modemstate:
+      title: ResponseModemState
+      type: object
+      properties:
+        results:
+          $ref: '#/components/schemas/modemstate_results'
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `UNKNOWN_ERROR`:\
+            \ The request could not be processed due to a server error. The request\
+            \ may succeed if you try again."
+          example: OK
+      example:
+        results:
+          sim_id: "3889654512325478527"
+          flymode: true
+          phone: +79217773335
+          sim_num: 2
+          imei: 35-419002-389644-3
+        status: OK
+    modemconn:
+      title: ResponseModemConn
+      type: object
+      properties:
+        results:
+          $ref: '#/components/schemas/modemconn_results'
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `UNKNOWN_ERROR`:\
+            \ The request could not be processed due to a server error. The request\
+            \ may succeed if you try again."
+          example: OK
+      example:
+        results:
+          base_id: 257-01-114-1384
+          signal: high
+          operator: Megafon
+        status: OK
+    filecfg:
+      title: ResponseConfigFile
+      type: object
+      properties:
+        results:
+          type: string
+          description: Config file
+          example: "15312001100000"
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: "15312001100000"
+        status: OK
+    filephones:
+      title: ResponsePhonesFile
+      type: object
+      properties:
+        results:
+          type: array
+          description: Phones file
+          items:
+            type: string
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results:
+        - results
+        - results
+        status: OK
+    responce:
+      title: Response
+      type: object
+      properties:
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        status: OK
+    battery:
+      title: ResponseBattery
+      type: object
+      properties:
+        results:
+          type: integer
+          description: Battery level percent
+          example: 52
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: 52
+        status: OK
+    relay:
+      title: ResponseRelay
+      type: object
+      properties:
+        results:
+          type: boolean
+          description: State
+          example: true
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: true
+        status: OK
+    wifi:
+      title: ResponseWiFi
+      type: object
+      properties:
+        results:
+          type: boolean
+          description: State
+          example: true
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: true
+        status: OK
+    pc:
+      title: ResponsePC
+      type: object
+      properties:
+        results:
+          type: boolean
+          description: State
+          example: true
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: true
+        status: OK
+    modem:
+      title: ResponseModem
+      type: object
+      properties:
+        results:
+          type: boolean
+          description: State
+          example: true
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: true
+        status: OK
+    flymode:
+      title: ResponseFlymode
+      type: object
+      properties:
+        results:
+          type: boolean
+          description: State
+          example: true
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: true
+        status: OK
+    imei:
+      title: ResponseIMEI
+      type: object
+      properties:
+        results:
+          type: string
+          description: IMEI
+          example: 35-419002-389644-3
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: 35-419002-389644-3
+        status: OK
+    sim:
+      title: ResponseSIMNum
+      type: object
+      properties:
+        results:
+          type: integer
+          description: sim num
+          example: 2
+        status:
+          type: string
+          description: "Three possible statuses:\n \n* `OK`: No errors occurred. \n\
+            * `UNKNOWN_ERROR`: The request could not be processed due to a server\
+            \ error. The request may succeed if you try again."
+          example: OK
+      example:
+        results: 2
+        status: OK
+    powercfg_results:
+      type: object
+      properties:
+        power_stat:
+          type: boolean
+          description: Static power or battery
+          example: true
+        bat_level:
+          type: integer
+          description: Battery level
+          example: 47
+        pc:
+          type: boolean
+          description: PC power control
+          example: true
+        wifi:
+          type: boolean
+          description: Wifi power control
+          example: true
+        relay1:
+          type: boolean
+          description: Relay 1 power control
+          example: true
+        relay2:
+          type: boolean
+          description: Relay 2 power control
+          example: true
+        modem1:
+          type: boolean
+          description: Modem 1 power control
+          example: true
+        modem2:
+          type: boolean
+          description: Modem 2 power control
+          example: true
+      example:
+        wifi: true
+        pc: true
+        modem2: true
+        power_stat: true
+        relay1: true
+        relay2: true
+        modem1: true
+        bat_level: 47
+    modemstate_results:
+      type: object
+      properties:
+        flymode:
+          type: boolean
+          description: Flightmode state
+          example: true
+        sim_num:
+          type: integer
+          description: Number of current sim-card in bank
+          example: 2
+        sim_id:
+          type: string
+          description: ICCID of current sim-card
+          example: "3889654512325478527"
+        imei:
+          type: string
+          description: IMEI of modem
+          example: 35-419002-389644-3
+        phone:
+          type: string
+          description: Current phone number
+          example: +79217773335
+      example:
+        sim_id: "3889654512325478527"
+        flymode: true
+        phone: +79217773335
+        sim_num: 2
+        imei: 35-419002-389644-3
+    modemconn_results:
+      type: object
+      properties:
+        operator:
+          type: string
+          description: Current operator
+          example: Megafon
+        base_id:
+          type: string
+          description: ID of current base station
+          example: 257-01-114-1384
+        signal:
+          type: string
+          description: Signal level
+          example: high
+      example:
+        base_id: 257-01-114-1384
+        signal: high
+        operator: Megafon
+  parameters:
+    state:
+      name: state
+      in: query
+      description: True if you want to turn power on, false otherwise
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    number:
+      name: number
+      in: query
+      description: Just number of sth. 1, 2, 3, etc...
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: integer
+        format: int32
+    strval:
+      name: strval
+      in: query
+      description: Some string value
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+    pc:
+      name: pc
+      in: query
+      description: PC power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    wifi:
+      name: wifi
+      in: query
+      description: WIFI power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    rel1:
+      name: relay1
+      in: query
+      description: Relay 1 power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    rel2:
+      name: relay2
+      in: query
+      description: Relay 2 power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    mod1:
+      name: modem1
+      in: query
+      description: Modem 1 power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    mod2:
+      name: modem2
+      in: query
+      description: Modem 2 power control
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    flymode:
+      name: flymode
+      in: query
+      description: Flightmode state
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: boolean
+    sim_num:
+      name: sim_num
+      in: query
+      description: Number of current sim-card in bank
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: integer
+    sim_id:
+      name: sim_id
+      in: query
+      description: ICCID of current sim-card
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+    imei:
+      name: imei
+      in: query
+      description: IMEI of modem
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+    phone:
+      name: phone
+      in: query
+      description: Current phone number
+      required: true
+      style: form
+      explode: true
+      schema:
+        type: string
+    file:
+      name: file
+      in: header
+      description: Some text file
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+  requestBodies:
+    filecfg:
+      description: The config file
+      content:
+        text/plain:
+          schema:
+            type: string
+      required: true
+    filephone:
+      description: The phone numbers file
+      content:
+        text/plain:
+          schema:
+            type: array
+            items:
+              type: string
+      required: true
