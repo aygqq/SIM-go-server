@@ -1,7 +1,7 @@
 package control
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"../com"
@@ -12,18 +12,16 @@ import (
 var table *crc16.Table
 
 func Init() {
-	log.Printf("Init protocol")
+	fmt.Printf("Init protocol\n")
 
 	com.Init(Callback)
 
 	//! TODO: Table must be simmilar with PCB's table
-	table = crc16.MakeTable(crc16.CRC16_MAXIM)
-
-	com.Send([]byte("hellllo!\n"))
-	//go comSend()
+	table = crc16.MakeMyTable(crc16.CRC16_MY)
 }
 
 func SendCommand(cmdType byte, state bool) {
+	fmt.Printf("SendCommand\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
@@ -32,7 +30,7 @@ func SendCommand(cmdType byte, state bool) {
 		buf[2] = 1
 	}
 
-	crc := crc16.Checksum(buf[:], table)
+	crc := crc16.Checksum(buf[:3], table)
 	buf[3] = uint8(crc >> 8)
 	buf[4] = uint8(crc & 0xff)
 	buf[5] = byte('\n')
@@ -41,13 +39,14 @@ func SendCommand(cmdType byte, state bool) {
 }
 
 func SendShort(cmdType byte, data byte) {
+	fmt.Printf("SendShort\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
 	buf[1] = 1
 	buf[2] = data
 
-	crc := crc16.Checksum(buf[:], table)
+	crc := crc16.Checksum(buf[:3], table)
 	buf[3] = uint8(crc >> 8)
 	buf[4] = uint8(crc & 0xff)
 	buf[5] = byte('\n')
@@ -56,23 +55,45 @@ func SendShort(cmdType byte, data byte) {
 }
 
 func SendData(cmdType byte, data []byte) {
+	fmt.Printf("SendData\n")
 	var dataLen = len(data)
 
 	var buf = make([]byte, dataLen+5)
 
 	buf[0] = cmdType
+	buf[1] = uint8(5 + dataLen)
 	for i := 0; i < dataLen; i++ {
 		buf[2+i] = data[i]
 	}
 
-	crc := crc16.Checksum(buf[:], table)
-	buf[3+dataLen] = uint8(crc >> 8)
-	buf[4+dataLen] = uint8(crc & 0xff)
-	buf[5+dataLen] = byte('\n')
-
-	buf[1] = uint8(5 + dataLen)
+	crc := crc16.Checksum(buf[0:len(buf)-3], table)
+	buf[2+dataLen] = uint8(crc >> 8)
+	buf[3+dataLen] = uint8(crc & 0xff)
+	buf[4+dataLen] = byte('\n')
 
 	com.Send(buf[:])
+}
+
+func SendFlightmode(idx uint8, state bool) {
+	var buf [2]byte
+
+	buf[0] = idx
+	if state {
+		buf[1] = 1
+	}
+
+	SendData(CMD_FLYMODE, buf[:])
+}
+
+func SendModemPwr(idx uint8, state bool) {
+	var buf [2]byte
+
+	buf[0] = idx
+	if state {
+		buf[1] = 1
+	}
+
+	SendData(CMD_POWER, buf[:])
 }
 
 func SendSimChange(bank uint8, sim uint8) {
@@ -102,8 +123,11 @@ func SendLcdBlink(bank uint8, sim uint8) {
 	SendData(CMD_LCD_BLINK, buf[:])
 }
 
-func SendSetImei(imei string) {
-	var buf = []byte(imei)
+func SendSetImei(idx uint8, imei string) {
+	var buf = make([]byte, 1+len(imei))
+
+	buf[0] = idx
+	copy(buf[1:], imei)
 
 	SendData(CMD_SET_IMEI, buf[:])
 }
@@ -169,19 +193,19 @@ func SendNewPhones(ph ModemPhones) {
 }
 
 func Callback(data []byte) {
-	crc := crc16.Checksum(data, table)
+	crc := crc16.Checksum(data[:len(data)-1], table)
 
-	//TODO: 0 or init value?
 	if crc != 0 {
-		log.Printf("Bad crc16")
-		// return
+		fmt.Printf("Bad crc16 %X\n", crc)
+		return
 	}
 
-	log.Printf("recieved: %q", data)
+	//! Return here bacause of there are blocking by channel below
+	return
 
 	switch data[0] {
 	case CMD_LOCK:
-		log.Printf("CMD_LOCK")
+		fmt.Printf("CMD_LOCK\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -190,7 +214,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_UNLOCK:
-		log.Printf("CMD_UNLOCK")
+		fmt.Printf("CMD_UNLOCK\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -199,7 +223,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_FLYMODE:
-		log.Printf("CMD_FLYMODE")
+		fmt.Printf("CMD_FLYMODE\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -208,7 +232,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_POWER:
-		log.Printf("CMD_POWER")
+		fmt.Printf("CMD_POWER\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -217,7 +241,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CHANGE_SIM:
-		log.Printf("CMD_CHANGE_SIM")
+		fmt.Printf("CMD_CHANGE_SIM\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -226,7 +250,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_PRINT:
-		log.Printf("CMD_LCD_PRINT")
+		fmt.Printf("CMD_LCD_PRINT\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -235,7 +259,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_BLINK:
-		log.Printf("CMD_LCD_BLINK")
+		fmt.Printf("CMD_LCD_BLINK\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -244,7 +268,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_IMEI:
-		log.Printf("CMD_SET_IMEI")
+		fmt.Printf("CMD_SET_IMEI\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -253,7 +277,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_CONFIG:
-		log.Printf("CMD_SET_CONFIG")
+		fmt.Printf("CMD_SET_CONFIG\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -262,7 +286,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CFG_ERROR:
-		log.Printf("CMD_CFG_ERROR")
+		fmt.Printf("CMD_CFG_ERROR\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -271,7 +295,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CTRL_ERROR:
-		log.Printf("CMD_CTRL_ERROR")
+		fmt.Printf("CMD_CTRL_ERROR\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -280,7 +304,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_WAITMODE:
-		log.Printf("CMD_PC_WAITMODE")
+		fmt.Printf("CMD_PC_WAITMODE\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -289,7 +313,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_SHUTDOWN:
-		log.Printf("CMD_PC_SHUTDOWN")
+		fmt.Printf("CMD_PC_SHUTDOWN\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -298,7 +322,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_READY:
-		log.Printf("CMD_PC_READY")
+		fmt.Printf("CMD_PC_READY\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -307,7 +331,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_NEW_PHONES:
-		log.Printf("CMD_NEW_PHONES")
+		fmt.Printf("CMD_NEW_PHONES\n")
 
 		if sw.FlagWaitResp == true {
 			sw.HttpReqChan <- data[2]
@@ -316,7 +340,7 @@ func Callback(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_REQ_MODEM_INFO:
-		log.Printf("CMD_REQ_MODEM_INFO")
+		fmt.Printf("CMD_REQ_MODEM_INFO\n")
 
 		var st [2]ModemStatus
 		var ptr int = 2
@@ -350,7 +374,7 @@ func Callback(data []byte) {
 		ModemSt[1] = st[1]
 		ControlReqChan <- 1
 	case CMD_REQ_PHONES:
-		log.Printf("CMD_REQ_PHONES")
+		fmt.Printf("CMD_REQ_PHONES\n")
 
 		var ph ModemPhones
 		var ptr int = 2
@@ -370,19 +394,19 @@ func Callback(data []byte) {
 		ModemPh = ph
 		ControlReqChan <- 1
 	case CMD_REQ_REASON:
-		log.Printf("CMD_REQ_REASON")
+		fmt.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
 		copy(SystemSt.ReasonBuf, data[2:2+len])
 		ControlReqChan <- 1
 	case CMD_OUT_SHUTDOWN:
-		log.Printf("CMD_OUT_SHUTDOWN")
+		fmt.Printf("CMD_OUT_SHUTDOWN\n")
 		//TODO: Start algorithm
 	case CMD_OUT_SAVE_STATE:
-		log.Printf("CMD_OUT_SAVE_STATE")
+		fmt.Printf("CMD_OUT_SAVE_STATE\n")
 		//TODO: Start algorithm
 	case CMD_OUT_SIM_CHANGE:
-		log.Printf("CMD_OUT_SIM_CHANGE")
+		fmt.Printf("CMD_OUT_SIM_CHANGE\n")
 		//TODO: Start algorithm
 	default:
 	}
