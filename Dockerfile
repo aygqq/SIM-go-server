@@ -15,8 +15,8 @@ WORKDIR /app
 
 RUN touch /tmp/my_tty
 
-# RUN apt-get update ; \
-#     apt-get install -y socat
+RUN apt-get update ; \
+    apt-get install -y socat
 
 RUN go build -o main . 
 

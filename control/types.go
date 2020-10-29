@@ -9,21 +9,22 @@ const (
 	CMD_POWER          = 5
 	CMD_CHANGE_SIM     = 6
 	CMD_LCD_PRINT      = 7
-	CMD_SET_IMEI       = 8
-	CMD_SET_CONFIG     = 9
-	CMD_CFG_ERROR      = 10
-	CMD_CTRL_ERROR     = 11
-	CMD_PC_WAITMODE    = 12
-	CMD_PC_SHUTDOWN    = 13
-	CMD_PC_READY       = 14
-	CMD_NEW_PHONES     = 15
-	CMD_REQ_MODEM_INFO = 16
-	CMD_REQ_PHONES     = 17
-	CMD_REQ_REASON     = 18
-	CMD_OUT_SHUTDOWN   = 19
-	CMD_OUT_SAVE_STATE = 20
-	CMD_OUT_SIM_CHANGE = 21
-	CMD_OUT_AT_CMD     = 22
+	CMD_LCD_BLINK      = 8
+	CMD_SET_IMEI       = 9
+	CMD_SET_CONFIG     = 10
+	CMD_CFG_ERROR      = 11
+	CMD_CTRL_ERROR     = 12
+	CMD_PC_WAITMODE    = 13
+	CMD_PC_SHUTDOWN    = 14
+	CMD_PC_READY       = 15
+	CMD_NEW_PHONES     = 16
+	CMD_REQ_MODEM_INFO = 17
+	CMD_REQ_PHONES     = 18
+	CMD_REQ_REASON     = 19
+	CMD_OUT_SHUTDOWN   = 20
+	CMD_OUT_SAVE_STATE = 21
+	CMD_OUT_SIM_CHANGE = 22
+	CMD_OUT_AT_CMD     = 23
 
 	IMEI_SIZE  = 16
 	PHONE_SIZE = 26
@@ -34,7 +35,7 @@ type PowerStatus struct {
 	// Static power or battery
 	PowerStat bool
 	// Battery level
-	BatLevel int32
+	BatLevel uint8
 	// PC power control
 	Pc bool
 	// Wifi power control
@@ -83,4 +84,12 @@ type SystemStatus struct {
 type ModemPhones struct {
 	phonesIn  [4]string
 	phonesOut [4]string
+}
+
+type FileConfig struct {
+	power      *PowerStatus
+	simNum     [2]uint8
+	configErr  bool
+	stateErr   bool
+	connectErr bool
 }
