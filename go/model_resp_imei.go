@@ -9,8 +9,8 @@
 package swagger
 
 type RespImei struct {
-	// IMEI
-	Results string `json:"results,omitempty"`
-	// Three possible statuses:   * `OK`: No errors occurred.  * `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.
+
+	Results *RespImeiResults `json:"results,omitempty"`
+	// Three possible statuses:   * `OK`: No errors occurred.  * `INVALID_REQUEST`: Some parameters are missing or invalid.  * `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.
 	Status string `json:"status,omitempty"`
 }

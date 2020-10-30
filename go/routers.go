@@ -28,11 +28,6 @@ type Route struct {
 
 type Routes []Route
 
-// func MakeChanel() *chan uint8 {
-// 	RequestChan = make(chan uint8)
-// 	return &RequestChan
-// }
-
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
@@ -63,13 +58,6 @@ var routes = Routes{
 	},
 
 	Route{
-		"GetPwrBat",
-		strings.ToUpper("Get"),
-		"/power/battery",
-		GetPwrBat,
-	},
-
-	Route{
 		"SetButtonsLock",
 		strings.ToUpper("Put"),
 		"/buttons/lock",
@@ -84,17 +72,17 @@ var routes = Routes{
 	},
 
 	Route{
-		"SetFileConfig",
-		strings.ToUpper("Put"),
-		"/files/config",
-		SetFileConfig,
-	},
-
-	Route{
 		"GetFilePhones",
 		strings.ToUpper("Get"),
 		"/files/phones",
 		GetFilePhones,
+	},
+
+	Route{
+		"SetFileConfig",
+		strings.ToUpper("Put"),
+		"/files/config",
+		SetFileConfig,
 	},
 
 	Route{
@@ -107,57 +95,64 @@ var routes = Routes{
 	Route{
 		"GetModemConnByID",
 		strings.ToUpper("Get"),
-		"/modem/conn/[modem_id]",
+		"/modem/conn",
 		GetModemConnByID,
 	},
 
 	Route{
 		"GetModemFlyByID",
 		strings.ToUpper("Get"),
-		"/modem/state/flymode/[modem_id]",
+		"/modem/state/flymode",
 		GetModemFlyByID,
-	},
-
-	Route{
-		"SetModemFlyByID",
-		strings.ToUpper("Put"),
-		"/modem/state/flymode/[modem_id]",
-		SetModemFlyByID,
 	},
 
 	Route{
 		"GetModemImeiByID",
 		strings.ToUpper("Get"),
-		"/modem/state/imei/[modem_id]",
+		"/modem/state/imei",
 		GetModemImeiByID,
-	},
-
-	Route{
-		"SetModemImeiByID",
-		strings.ToUpper("Put"),
-		"/modem/state/imei/[modem_id]",
-		SetModemImeiByID,
 	},
 
 	Route{
 		"GetModemSimByID",
 		strings.ToUpper("Get"),
-		"/modem/state/sim/[modem_id]",
+		"/modem/state/sim",
 		GetModemSimByID,
-	},
-
-	Route{
-		"SetModemSimByID",
-		strings.ToUpper("Put"),
-		"/modem/state/sim/[modem_id]",
-		SetModemSimByID,
 	},
 
 	Route{
 		"GetModemStByID",
 		strings.ToUpper("Get"),
-		"/modem/state/[modem_id]",
+		"/modem/state",
 		GetModemStByID,
+	},
+
+	Route{
+		"SetModemFlyByID",
+		strings.ToUpper("Put"),
+		"/modem/state/flymode",
+		SetModemFlyByID,
+	},
+
+	Route{
+		"SetModemImeiByID",
+		strings.ToUpper("Put"),
+		"/modem/state/imei",
+		SetModemImeiByID,
+	},
+
+	Route{
+		"SetModemSimByID",
+		strings.ToUpper("Put"),
+		"/modem/state/sim",
+		SetModemSimByID,
+	},
+
+	Route{
+		"GetPwrBat",
+		strings.ToUpper("Get"),
+		"/power/battery",
+		GetPwrBat,
 	},
 
 	Route{
@@ -168,24 +163,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"SetPwrCfg",
-		strings.ToUpper("Put"),
-		"/power",
-		SetPwrCfg,
-	},
-
-	Route{
 		"GetPwrModemByID",
 		strings.ToUpper("Get"),
-		"/power/modem/[modem_id]",
+		"/power/modem",
 		GetPwrModemByID,
-	},
-
-	Route{
-		"SetPwrModemByID",
-		strings.ToUpper("Put"),
-		"/power/modem/[modem_id]",
-		SetPwrModemByID,
 	},
 
 	Route{
@@ -196,24 +177,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"SetPwrPC",
-		strings.ToUpper("Put"),
-		"/power/pc",
-		SetPwrPC,
-	},
-
-	Route{
 		"GetPwrRelayByID",
 		strings.ToUpper("Get"),
-		"/power/relay/[rel_id]",
+		"/power/relay",
 		GetPwrRelayByID,
-	},
-
-	Route{
-		"SetPwrRelayByID",
-		strings.ToUpper("Put"),
-		"/power/relay/[rel_id]",
-		SetPwrRelayByID,
 	},
 
 	Route{
@@ -224,10 +191,59 @@ var routes = Routes{
 	},
 
 	Route{
+		"SetPwrCfg",
+		strings.ToUpper("Put"),
+		"/power",
+		SetPwrCfg,
+	},
+
+	Route{
+		"SetPwrModemByID",
+		strings.ToUpper("Put"),
+		"/power/modem",
+		SetPwrModemByID,
+	},
+
+	Route{
+		"SetPwrPC",
+		strings.ToUpper("Put"),
+		"/power/pc",
+		SetPwrPC,
+	},
+
+	Route{
+		"SetPwrRelayByID",
+		strings.ToUpper("Put"),
+		"/power/relay",
+		SetPwrRelayByID,
+	},
+
+	Route{
 		"SetPwrWiFi",
 		strings.ToUpper("Put"),
 		"/power/wifi",
 		SetPwrWiFi,
+	},
+
+	Route{
+		"SetWaitmode",
+		strings.ToUpper("Put"),
+		"/power/waitmode",
+		SetWaitmode,
+	},
+
+	Route{
+		"GetSmsUnknown",
+		strings.ToUpper("Get"),
+		"/sms/unknown",
+		GetSmsUnknown,
+	},
+
+	Route{
+		"SetSendSms",
+		strings.ToUpper("Put"),
+		"/sms/send",
+		SetSendSms,
 	},
 
 	Route{

@@ -8,9 +8,9 @@
  */
 package swagger
 
-type RespState struct {
+type RespSms struct {
 
-	Results *RespStateResults `json:"results,omitempty"`
+	Results *RespSmsResults `json:"results,omitempty"`
 	// Three possible statuses:   * `OK`: No errors occurred.  * `INVALID_REQUEST`: Some parameters are missing or invalid.  * `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.
 	Status string `json:"status,omitempty"`
 }

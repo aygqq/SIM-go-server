@@ -10,18 +10,19 @@ package swagger
 
 import (
 	"net/http"
-
-	"../com"
 )
 
-func GetPwrWiFi(w http.ResponseWriter, r *http.Request) {
-	com.Send([]byte("GetPwrWiFi"))
+func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
 
-func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
-	com.Send([]byte("SetPwrWiFi"))
+func SetSendSms(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }

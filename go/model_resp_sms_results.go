@@ -8,11 +8,11 @@
  */
 package swagger
 
-import (
-	"net/http"
-)
-
-func GetModemStByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+type RespSmsResults struct {
+	// Number
+	Number int32 `json:"number,omitempty"`
+	// Phone number
+	Phone string `json:"phone,omitempty"`
+	// Some text message
+	Message string `json:"message,omitempty"`
 }

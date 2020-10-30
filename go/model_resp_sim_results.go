@@ -8,11 +8,9 @@
  */
 package swagger
 
-import (
-	"net/http"
-)
-
-func SetSmsLock(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+type RespSimResults struct {
+	// Number
+	Number int32 `json:"number,omitempty"`
+	// sim num
+	SimNum int32 `json:"sim_num,omitempty"`
 }
