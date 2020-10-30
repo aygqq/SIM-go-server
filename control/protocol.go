@@ -80,7 +80,7 @@ func SendDoubleByte(cmdType uint8, byte1 uint8, byte2 uint8) {
 	buf[0] = byte1
 	buf[1] = byte2
 
-	SendData(CMD_CHANGE_SIM, buf[:])
+	SendData(cmdType, buf[:])
 }
 
 func SendFlightmode(idx uint8, state bool) {
@@ -104,33 +104,6 @@ func SendObjectPwr(obj uint8, idx uint8, state bool) {
 	}
 
 	SendData(CMD_POWER, buf[:])
-}
-
-func SendSimChange(bank uint8, sim uint8) {
-	var buf [2]byte
-
-	buf[0] = bank
-	buf[1] = sim
-
-	SendData(CMD_CHANGE_SIM, buf[:])
-}
-
-func SendLcdInfo(infoType uint8, info uint8) {
-	var buf [2]byte
-
-	buf[0] = infoType
-	buf[1] = info
-
-	SendData(CMD_LCD_PRINT, buf[:])
-}
-
-func SendLcdBlink(bank uint8, sim uint8) {
-	var buf [2]byte
-
-	buf[0] = bank
-	buf[1] = sim
-
-	SendData(CMD_LCD_BLINK, buf[:])
 }
 
 func SendSetImei(idx uint8, imei string) {

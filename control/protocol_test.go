@@ -85,6 +85,7 @@ func Callback_test(data []byte) {
 		fmt.Printf("Bad crc16 %X %X\n", crc, crcIn)
 		return
 	}
+	fmt.Printf("Good crc16 %X %X\n", crc, crcIn)
 	flag = true
 	return
 }
