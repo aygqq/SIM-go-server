@@ -20,7 +20,7 @@ func Init() {
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
 }
 
-func SendCommand(cmdType byte, state bool) {
+func SendCommand(cmdType uint8, state bool) {
 	fmt.Printf("SendCommand\n")
 	var buf [6]byte
 
@@ -38,7 +38,7 @@ func SendCommand(cmdType byte, state bool) {
 	com.Send(buf[:])
 }
 
-func SendShort(cmdType byte, data byte) {
+func SendShort(cmdType uint8, data byte) {
 	fmt.Printf("SendShort\n")
 	var buf [6]byte
 
@@ -54,7 +54,7 @@ func SendShort(cmdType byte, data byte) {
 	com.Send(buf[:])
 }
 
-func SendData(cmdType byte, data []byte) {
+func SendData(cmdType uint8, data []byte) {
 	fmt.Printf("SendData\n")
 	var dataLen = len(data)
 
@@ -74,6 +74,15 @@ func SendData(cmdType byte, data []byte) {
 	com.Send(buf[:])
 }
 
+func SendDoubleByte(cmdType uint8, byte1 uint8, byte2 uint8) {
+	var buf [2]byte
+
+	buf[0] = byte1
+	buf[1] = byte2
+
+	SendData(CMD_CHANGE_SIM, buf[:])
+}
+
 func SendFlightmode(idx uint8, state bool) {
 	var buf [2]byte
 
@@ -85,12 +94,13 @@ func SendFlightmode(idx uint8, state bool) {
 	SendData(CMD_FLYMODE, buf[:])
 }
 
-func SendModemPwr(idx uint8, state bool) {
-	var buf [2]byte
+func SendObjectPwr(obj uint8, idx uint8, state bool) {
+	var buf [3]byte
 
-	buf[0] = idx
+	buf[0] = obj
+	buf[1] = idx
 	if state {
-		buf[1] = 1
+		buf[2] = 1
 	}
 
 	SendData(CMD_POWER, buf[:])
