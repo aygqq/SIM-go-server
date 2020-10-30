@@ -116,44 +116,45 @@ func SendSetImei(idx uint8, imei string) {
 }
 
 func SendConfig(cfg FileConfig) {
-	var buf [13]byte
+	var buf [14]byte
 
 	if cfg.power.PowerStat == true {
 		buf[0] = 1
 	}
-	buf[1] = cfg.power.BatLevel
-
-	if cfg.power.Pc == true {
-		buf[2] = 1
-	}
-	if cfg.power.Wifi == true {
-		buf[3] = 1
-	}
+	buf[1] = cfg.power.BatLevel / 10
+	buf[2] = cfg.power.BatLevel % 10
 
 	if cfg.power.Modem[0] == true {
-		buf[4] = 1
+		buf[3] = 1
 	}
-	buf[5] = cfg.simNum[0]
+	buf[4] = cfg.simNum[0]
 
 	if cfg.power.Modem[1] == true {
-		buf[6] = 1
+		buf[5] = 1
 	}
-	buf[7] = cfg.simNum[1]
+	buf[6] = cfg.simNum[1]
 
-	if cfg.power.Relay[0] == true {
+	if cfg.power.Pc == true {
+		buf[7] = 1
+	}
+	if cfg.power.Wifi == true {
 		buf[8] = 1
 	}
-	if cfg.power.Relay[1] == true {
+
+	if cfg.power.Relay[0] == true {
 		buf[9] = 1
 	}
-	if cfg.configErr == true {
+	if cfg.power.Relay[1] == true {
 		buf[10] = 1
 	}
-	if cfg.stateErr == true {
+	if cfg.configErr == true {
 		buf[11] = 1
 	}
-	if cfg.connectErr == true {
+	if cfg.stateErr == true {
 		buf[12] = 1
+	}
+	if cfg.connectErr == true {
+		buf[13] = 1
 	}
 
 	SendData(CMD_SET_CONFIG, buf[:])

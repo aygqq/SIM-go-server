@@ -93,7 +93,7 @@ type ModemPhones struct {
 }
 
 type FileConfig struct {
-	power      *PowerStatus
+	power      PowerStatus
 	simNum     [2]uint8
 	configErr  bool
 	stateErr   bool

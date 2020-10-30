@@ -43,7 +43,6 @@ func Test(t *testing.T) {
 	flag = false
 	var cfg FileConfig
 	cfg.connectErr = true
-	cfg.power = &PowerSt
 	cfg.power.Pc = true
 	cfg.power.Modem[0] = true
 	SendConfig(cfg)
