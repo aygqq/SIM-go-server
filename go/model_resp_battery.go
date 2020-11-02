@@ -10,7 +10,7 @@ package swagger
 
 type RespBattery struct {
 	// Battery level percent
-	Results int32 `json:"results,omitempty"`
+	Results uint8 `json:"results,omitempty"`
 	// Three possible statuses:   * `OK`: No errors occurred.  * `INVALID_REQUEST`: Some parameters are missing or invalid.  * `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.
 	Status string `json:"status,omitempty"`
 }

@@ -10,7 +10,7 @@ package swagger
 
 type RespImeiResults struct {
 	// Number
-	Number int32 `json:"number,omitempty"`
+	Number uint8 `json:"number,omitempty"`
 	// IMEI
 	Imei string `json:"imei,omitempty"`
 }

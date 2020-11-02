@@ -6,7 +6,6 @@ import (
 
 	"../com"
 	"../crc16"
-	sw "../go"
 )
 
 var table *crc16.Table
@@ -118,42 +117,42 @@ func SendSetImei(idx uint8, imei string) {
 func SendConfig(cfg FileConfig) {
 	var buf [14]byte
 
-	if cfg.power.powerStat == true {
+	if cfg.Power.PowerStat == true {
 		buf[0] = 1
 	}
-	buf[1] = cfg.power.batLevel / 10
-	buf[2] = cfg.power.batLevel % 10
+	buf[1] = cfg.Power.BatLevel / 10
+	buf[2] = cfg.Power.BatLevel % 10
 
-	if cfg.power.modem[0] == true {
+	if cfg.Power.Modem[0] == true {
 		buf[3] = 1
 	}
-	buf[4] = cfg.simNum[0]
+	buf[4] = cfg.SimNum[0]
 
-	if cfg.power.modem[1] == true {
+	if cfg.Power.Modem[1] == true {
 		buf[5] = 1
 	}
-	buf[6] = cfg.simNum[1]
+	buf[6] = cfg.SimNum[1]
 
-	if cfg.power.pc == true {
+	if cfg.Power.Pc == true {
 		buf[7] = 1
 	}
-	if cfg.power.wifi == true {
+	if cfg.Power.Wifi == true {
 		buf[8] = 1
 	}
 
-	if cfg.power.relay[0] == true {
+	if cfg.Power.Relay[0] == true {
 		buf[9] = 1
 	}
-	if cfg.power.relay[1] == true {
+	if cfg.Power.Relay[1] == true {
 		buf[10] = 1
 	}
-	if cfg.configErr == true {
+	if cfg.ConfigErr == true {
 		buf[11] = 1
 	}
-	if cfg.stateErr == true {
+	if cfg.StateErr == true {
 		buf[12] = 1
 	}
-	if cfg.connectErr == true {
+	if cfg.ConnectErr == true {
 		buf[13] = 1
 	}
 
@@ -165,11 +164,11 @@ func SendNewPhones(ph ModemPhones) {
 
 	var ptr int = 0
 	for i := 0; i < 4; i++ {
-		copy(buf[ptr:], ph.phonesOut[i])
+		copy(buf[ptr:], ph.PhonesOut[i])
 		ptr += PHONE_SIZE
 	}
 	for i := 0; i < 4; i++ {
-		copy(buf[ptr:], ph.phonesIn[i])
+		copy(buf[ptr:], ph.PhonesIn[i])
 		ptr += PHONE_SIZE
 	}
 
@@ -191,135 +190,135 @@ func Callback(data []byte) {
 	case CMD_LOCK:
 		fmt.Printf("CMD_LOCK\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_UNLOCK:
 		fmt.Printf("CMD_UNLOCK\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_FLYMODE:
 		fmt.Printf("CMD_FLYMODE\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_POWER:
 		fmt.Printf("CMD_POWER\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CHANGE_SIM:
 		fmt.Printf("CMD_CHANGE_SIM\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_PRINT:
 		fmt.Printf("CMD_LCD_PRINT\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_BLINK:
 		fmt.Printf("CMD_LCD_BLINK\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_IMEI:
 		fmt.Printf("CMD_SET_IMEI\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_CONFIG:
 		fmt.Printf("CMD_SET_CONFIG\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CFG_ERROR:
 		fmt.Printf("CMD_CFG_ERROR\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CTRL_ERROR:
 		fmt.Printf("CMD_CTRL_ERROR\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_WAITMODE:
 		fmt.Printf("CMD_PC_WAITMODE\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_SHUTDOWN:
 		fmt.Printf("CMD_PC_SHUTDOWN\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_READY:
 		fmt.Printf("CMD_PC_READY\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
 	case CMD_NEW_PHONES:
 		fmt.Printf("CMD_NEW_PHONES\n")
 
-		if sw.FlagWaitResp == true {
-			sw.HttpReqChan <- data[2]
-			sw.FlagWaitResp = false
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
 		} else {
 			ControlReqChan <- data[2]
 		}
@@ -331,27 +330,27 @@ func Callback(data []byte) {
 		idx := data[ptr]
 		ptr++
 		if data[ptr] == 1 {
-			st[idx].flymode = true
+			st[idx].Flymode = true
 		} else {
-			st[idx].flymode = false
+			st[idx].Flymode = false
 		}
 		ptr++
-		st[idx].simNum = data[ptr]
+		st[idx].SimNum = data[ptr]
 		ptr++
 
 		var simid = make([]byte, SIMID_SIZE)
 		copy(simid, data[ptr:ptr+SIMID_SIZE])
-		st[idx].simId = string(simid)
+		st[idx].SimId = string(simid)
 		ptr += SIMID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
-		st[idx].phone = string(phone)
+		st[idx].Phone = string(phone)
 		ptr += PHONE_SIZE
 
 		var imei = make([]byte, IMEI_SIZE)
 		copy(imei, data[ptr:ptr+IMEI_SIZE])
-		st[idx].imei = string(imei)
+		st[idx].Imei = string(imei)
 		ptr += IMEI_SIZE
 
 		ModemSt[0] = st[0]
@@ -365,13 +364,13 @@ func Callback(data []byte) {
 		for i := 0; i < 4; i++ {
 			var phone = make([]byte, PHONE_SIZE)
 			copy(phone, data[ptr:ptr+PHONE_SIZE])
-			ph.phonesOut[i] = string(phone)
+			ph.PhonesOut[i] = string(phone)
 			ptr += PHONE_SIZE
 		}
 		for i := 0; i < 4; i++ {
 			var phone = make([]byte, PHONE_SIZE)
 			copy(phone, data[ptr:ptr+PHONE_SIZE])
-			ph.phonesIn[i] = string(phone)
+			ph.PhonesIn[i] = string(phone)
 			ptr += PHONE_SIZE
 		}
 
@@ -381,7 +380,7 @@ func Callback(data []byte) {
 		fmt.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
-		copy(SystemSt.reasonBuf, data[2:2+len])
+		copy(SystemSt.ReasonBuf, data[2:2+len])
 		ControlReqChan <- 1
 	case CMD_OUT_SHUTDOWN:
 		fmt.Printf("CMD_OUT_SHUTDOWN\n")

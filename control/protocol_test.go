@@ -42,9 +42,9 @@ func Test(t *testing.T) {
 
 	flag = false
 	var cfg FileConfig
-	cfg.connectErr = true
-	cfg.power.pc = true
-	cfg.power.modem[0] = true
+	cfg.ConnectErr = true
+	cfg.Power.Pc = true
+	cfg.Power.Modem[0] = true
 	SendConfig(cfg)
 	time.Sleep(time.Second)
 	if flag == false {
@@ -53,13 +53,13 @@ func Test(t *testing.T) {
 
 	flag = false
 	var ph ModemPhones
-	ph.phonesOut[0] = "111111111111"
-	ph.phonesOut[1] = "222222222222"
-	ph.phonesOut[2] = "333333333333"
-	ph.phonesIn[0] = "+111111111111"
-	ph.phonesIn[1] = "+222222222222"
-	ph.phonesIn[2] = "+333333333333"
-	ph.phonesIn[3] = "99999999999999999999999999"
+	ph.PhonesOut[0] = "111111111111"
+	ph.PhonesOut[1] = "222222222222"
+	ph.PhonesOut[2] = "333333333333"
+	ph.PhonesIn[0] = "+111111111111"
+	ph.PhonesIn[1] = "+222222222222"
+	ph.PhonesIn[2] = "+333333333333"
+	ph.PhonesIn[3] = "99999999999999999999999999"
 	SendNewPhones(ph)
 	time.Sleep(time.Second)
 	if flag == false {

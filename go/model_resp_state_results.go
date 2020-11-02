@@ -10,7 +10,7 @@ package swagger
 
 type RespStateResults struct {
 	// Number
-	Number int32 `json:"number,omitempty"`
+	Number uint8 `json:"number,omitempty"`
 	// State
 	State bool `json:"state,omitempty"`
 }

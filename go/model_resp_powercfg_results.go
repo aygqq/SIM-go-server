@@ -12,7 +12,7 @@ type RespPowercfgResults struct {
 	// Static power or battery
 	PowerStat bool `json:"power_stat,omitempty"`
 	// Battery level
-	BatLevel int32 `json:"bat_level,omitempty"`
+	BatLevel uint8 `json:"bat_level,omitempty"`
 	// PC power control
 	Pc bool `json:"pc,omitempty"`
 	// Wifi power control

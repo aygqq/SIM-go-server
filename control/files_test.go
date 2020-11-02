@@ -20,7 +20,7 @@ func Test_ph(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = writePhonesFile("../phones_wr.txt", ph)
+	err = writePhonesFile("../phones_wr.csv", ph)
 	if err != nil {
 		t.Fatal(err)
 	}

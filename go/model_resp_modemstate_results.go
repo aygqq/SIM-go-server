@@ -12,7 +12,7 @@ type RespModemstateResults struct {
 	// Flightmode state
 	Flymode bool `json:"flymode,omitempty"`
 	// Number of current sim-card in bank
-	SimNum int32 `json:"sim_num,omitempty"`
+	SimNum uint8 `json:"sim_num,omitempty"`
 	// ICCID of current sim-card
 	SimId string `json:"sim_id,omitempty"`
 	// IMEI of modem

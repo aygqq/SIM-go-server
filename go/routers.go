@@ -16,9 +16,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var HttpReqChan chan uint8 = make(chan uint8)
-var FlagWaitResp bool = false
-
 type Route struct {
 	Name        string
 	Method      string
@@ -162,33 +159,33 @@ var routes = Routes{
 		GetPwrCfg,
 	},
 
-	Route{
-		"GetPwrModemByID",
-		strings.ToUpper("Get"),
-		"/power/modem",
-		GetPwrModemByID,
-	},
+	// Route{
+	// 	"GetPwrModemByID",
+	// 	strings.ToUpper("Get"),
+	// 	"/power/modem",
+	// 	GetPwrModemByID,
+	// },
 
-	Route{
-		"GetPwrPC",
-		strings.ToUpper("Get"),
-		"/power/pc",
-		GetPwrPC,
-	},
+	// Route{
+	// 	"GetPwrPC",
+	// 	strings.ToUpper("Get"),
+	// 	"/power/pc",
+	// 	GetPwrPC,
+	// },
 
-	Route{
-		"GetPwrRelayByID",
-		strings.ToUpper("Get"),
-		"/power/relay",
-		GetPwrRelayByID,
-	},
+	// Route{
+	// 	"GetPwrRelayByID",
+	// 	strings.ToUpper("Get"),
+	// 	"/power/relay",
+	// 	GetPwrRelayByID,
+	// },
 
-	Route{
-		"GetPwrWiFi",
-		strings.ToUpper("Get"),
-		"/power/wifi",
-		GetPwrWiFi,
-	},
+	// Route{
+	// 	"GetPwrWiFi",
+	// 	strings.ToUpper("Get"),
+	// 	"/power/wifi",
+	// 	GetPwrWiFi,
+	// },
 
 	Route{
 		"SetPwrCfg",

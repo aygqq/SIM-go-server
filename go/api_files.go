@@ -9,25 +9,67 @@
 package swagger
 
 import (
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+
+	"../control"
 )
 
 func GetFileConfig(w http.ResponseWriter, r *http.Request) {
+	var resp RespFilecfg
+	resp.Results = control.GetConfigFile()
+	resp.Status = "OK"
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	fmt.Fprintf(w, "Results: %s\n", resp.Results)
+	fmt.Fprintf(w, "Status: %s\n", resp.Status)
 }
 
 func GetFilePhones(w http.ResponseWriter, r *http.Request) {
+	var resp RespFilephones
+	resp.Results = control.GetPhonesFile()
+	resp.Status = "OK"
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	fmt.Fprintf(w, "Results: %s\n", resp.Results)
+	fmt.Fprintf(w, "Status: %s\n", resp.Status)
 }
 
 func SetFileConfig(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v", err)
+	}
+	str := string(body)
+	fmt.Printf("Request body is %s\n", str)
+
+	control.SetConfigFile(str)
+
+	var resp RespFilecfg
+	resp.Results = control.GetConfigFile()
+	resp.Status = "OK"
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
 
 func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v", err)
+	}
+	str := string(body)
+	fmt.Printf("Request body is %s\n", str)
+
+	control.SetPhonesFile(str)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
