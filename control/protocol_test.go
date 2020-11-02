@@ -43,8 +43,8 @@ func Test(t *testing.T) {
 	flag = false
 	var cfg FileConfig
 	cfg.connectErr = true
-	cfg.power.Pc = true
-	cfg.power.Modem[0] = true
+	cfg.power.pc = true
+	cfg.power.modem[0] = true
 	SendConfig(cfg)
 	time.Sleep(time.Second)
 	if flag == false {

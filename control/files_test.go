@@ -14,3 +14,14 @@ func Test_cfg(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func Test_ph(t *testing.T) {
+	ph, err := readPhonesFile("../phones.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = writePhonesFile("../phones_wr.txt", ph)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

@@ -39,39 +39,39 @@ const (
 
 type PowerStatus struct {
 	// Static power or battery
-	PowerStat bool
+	powerStat bool
 	// Battery level
-	BatLevel uint8
+	batLevel uint8
 	// PC power control
-	Pc bool
+	pc bool
 	// Wifi power control
-	Wifi bool
+	wifi bool
 	// Relay power control
-	Relay [2]bool
+	relay [2]bool
 	// Modem  power control
-	Modem [2]bool
+	modem [2]bool
 }
 
 type ModemStatus struct {
 	// Flightmode state
-	Flymode bool
+	flymode bool
 	// Number of current sim-card in bank
-	SimNum uint8
+	simNum uint8
 	// ICCID of current sim-card
-	SimId string
+	simId string
 	// IMEI of modem
-	Imei string
+	imei string
 	// Current phone number
-	Phone string
+	phone string
 }
 
 type ModemConnStatus struct {
 	// Current operator
-	Operator string
+	operator string //!Is operId the same as operator?
 	// ID of current base station
-	BaseId string
+	baseId string
 	// Signal level
-	Signal string
+	signal string
 }
 
 type RequiredElement struct {
@@ -81,15 +81,21 @@ type RequiredElement struct {
 }
 
 type SystemStatus struct {
-	SmsLock     bool
-	ButtonsLock bool
-	ReasonBuf   []byte
-	ReqElem     RequiredElement
+	smsLock     bool
+	buttonsLock bool
+	reasonBuf   []byte
+	reqElem     RequiredElement
 }
 
 type ModemPhones struct {
 	phonesIn  [4]string
 	phonesOut [4]string
+}
+
+type ModemSimParams struct {
+	simId  string
+	imei   string
+	operId string //!Is operId the same as operator?
 }
 
 type FileConfig struct {
@@ -98,4 +104,10 @@ type FileConfig struct {
 	configErr  bool
 	stateErr   bool
 	connectErr bool
+}
+
+type FilePhones struct {
+	bank1  [4]ModemSimParams
+	bank2  [4]ModemSimParams
+	phones ModemPhones
 }

@@ -118,33 +118,33 @@ func SendSetImei(idx uint8, imei string) {
 func SendConfig(cfg FileConfig) {
 	var buf [14]byte
 
-	if cfg.power.PowerStat == true {
+	if cfg.power.powerStat == true {
 		buf[0] = 1
 	}
-	buf[1] = cfg.power.BatLevel / 10
-	buf[2] = cfg.power.BatLevel % 10
+	buf[1] = cfg.power.batLevel / 10
+	buf[2] = cfg.power.batLevel % 10
 
-	if cfg.power.Modem[0] == true {
+	if cfg.power.modem[0] == true {
 		buf[3] = 1
 	}
 	buf[4] = cfg.simNum[0]
 
-	if cfg.power.Modem[1] == true {
+	if cfg.power.modem[1] == true {
 		buf[5] = 1
 	}
 	buf[6] = cfg.simNum[1]
 
-	if cfg.power.Pc == true {
+	if cfg.power.pc == true {
 		buf[7] = 1
 	}
-	if cfg.power.Wifi == true {
+	if cfg.power.wifi == true {
 		buf[8] = 1
 	}
 
-	if cfg.power.Relay[0] == true {
+	if cfg.power.relay[0] == true {
 		buf[9] = 1
 	}
-	if cfg.power.Relay[1] == true {
+	if cfg.power.relay[1] == true {
 		buf[10] = 1
 	}
 	if cfg.configErr == true {
@@ -331,27 +331,27 @@ func Callback(data []byte) {
 		idx := data[ptr]
 		ptr++
 		if data[ptr] == 1 {
-			st[idx].Flymode = true
+			st[idx].flymode = true
 		} else {
-			st[idx].Flymode = false
+			st[idx].flymode = false
 		}
 		ptr++
-		st[idx].SimNum = data[ptr]
+		st[idx].simNum = data[ptr]
 		ptr++
 
 		var simid = make([]byte, SIMID_SIZE)
 		copy(simid, data[ptr:ptr+SIMID_SIZE])
-		st[idx].SimId = string(simid)
+		st[idx].simId = string(simid)
 		ptr += SIMID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
-		st[idx].Phone = string(phone)
+		st[idx].phone = string(phone)
 		ptr += PHONE_SIZE
 
 		var imei = make([]byte, IMEI_SIZE)
 		copy(imei, data[ptr:ptr+IMEI_SIZE])
-		st[idx].Imei = string(imei)
+		st[idx].imei = string(imei)
 		ptr += IMEI_SIZE
 
 		ModemSt[0] = st[0]
@@ -381,7 +381,7 @@ func Callback(data []byte) {
 		fmt.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
-		copy(SystemSt.ReasonBuf, data[2:2+len])
+		copy(SystemSt.reasonBuf, data[2:2+len])
 		ControlReqChan <- 1
 	case CMD_OUT_SHUTDOWN:
 		fmt.Printf("CMD_OUT_SHUTDOWN\n")
