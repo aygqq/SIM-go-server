@@ -3,6 +3,9 @@ package swagger
 import (
 	"fmt"
 	"net/http"
+	"time"
+
+	"../control"
 )
 
 func parseState(r *http.Request) bool {
@@ -41,4 +44,34 @@ func parseNumberState(r *http.Request) (uint8, bool) {
 	}
 
 	return idx, state
+}
+
+func doSth(b bool) {
+
+}
+
+func waitForResponce(resp *RespState) bool {
+	var state bool = false
+
+	control.FlagWaitResp = true
+	select {
+	case read := <-control.HttpReqChan:
+		if read == 1 {
+			state = true
+		} else {
+			state = false
+		}
+		resp.Results.Number = 0
+		resp.Results.State = state
+
+		resp.Status = "OK"
+	case <-time.After(time.Second):
+		fmt.Println("No response received")
+
+		resp.Results.Number = 0
+		resp.Results.State = false
+
+		resp.Status = "ERROR"
+	}
+	return state
 }

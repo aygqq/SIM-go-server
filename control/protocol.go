@@ -60,7 +60,7 @@ func SendData(cmdType uint8, data []byte) {
 	var buf = make([]byte, dataLen+5)
 
 	buf[0] = cmdType
-	buf[1] = uint8(5 + dataLen)
+	buf[1] = uint8(dataLen)
 	for i := 0; i < dataLen; i++ {
 		buf[2+i] = data[i]
 	}
@@ -182,7 +182,11 @@ func Callback(data []byte) {
 		fmt.Printf("Bad crc16 %X\n", crc)
 		return
 	}
-
+	fmt.Printf("recv: ")
+	for i := 0; i < len(data)-1; i++ {
+		fmt.Printf("%02X ", data[i])
+	}
+	fmt.Printf("  \n")
 	//! Return here bacause of there are blocking by channel below
 	return
 

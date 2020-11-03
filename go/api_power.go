@@ -12,22 +12,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"../control"
 )
-
-func GetPwrBat(w http.ResponseWriter, r *http.Request) {
-	var resp RespBattery
-	resp.Results = 94
-	resp.Status = "OK"
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-
-	str, _ := json.Marshal(resp)
-	fmt.Fprintf(w, string(str))
-}
 
 func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 	var res RespPowercfgResults
@@ -51,43 +38,6 @@ func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 
 	str, _ := json.Marshal(resp)
 	fmt.Fprintf(w, string(str))
-}
-
-// func GetPwrModemByID(w http.ResponseWriter, r *http.Request) {
-// 	var resp RespPowercfg
-
-// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-// 	w.WriteHeader(http.StatusOK)
-
-// 	str, _ := json.Marshal(resp)
-// 	fmt.Fprintf(w, string(str))
-// }
-
-// func GetPwrPC(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-// 	w.WriteHeader(http.StatusOK)
-
-// 	str, _ := json.Marshal(resp)
-// 	fmt.Fprintf(w, string(str))
-// }
-
-// func GetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-// 	w.WriteHeader(http.StatusOK)
-
-// 	str, _ := json.Marshal(resp)
-// 	fmt.Fprintf(w, string(str))
-// }
-
-// func GetPwrWiFi(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-// 	w.WriteHeader(http.StatusOK)
-
-// 	str, _ := json.Marshal(resp)
-// 	fmt.Fprintf(w, string(str))
-// }
-func doSth(b bool) {
-
 }
 
 func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
@@ -165,17 +115,12 @@ func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
 func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	resp.Results = &res
 
 	idx, state := parseNumberState(r)
 
 	control.SendObjectPwr(control.OBJECT_MODEM, idx, state)
-
-	cfg := control.GetPowerConfig()
-	res.Number = idx
-	res.State = cfg.Modem[idx] && state
-
-	resp.Results = &res
-	resp.Status = "OK"
+	state = waitForResponce(&resp)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -187,31 +132,12 @@ func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 func SetPwrPC(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	resp.Results = &res
 
 	state := parseState(r)
 
 	control.SendObjectPwr(control.OBJECT_PC, 0, state)
-	control.FlagWaitResp = true
-	select {
-	case read := <-control.HttpReqChan:
-		if read == 1 {
-			state = true
-		} else {
-			state = false
-		}
-		res.Number = 0
-		res.State = state
-
-		resp.Status = "OK"
-	case <-time.After(time.Second):
-		fmt.Println("No response received")
-
-		res.Number = 0
-		res.State = false
-
-		resp.Status = "ERROR"
-	}
-	resp.Results = &res
+	state = waitForResponce(&resp)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -223,17 +149,12 @@ func SetPwrPC(w http.ResponseWriter, r *http.Request) {
 func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	resp.Results = &res
 
 	idx, state := parseNumberState(r)
 
-	//TODO: set this param
-
-	cfg := control.GetPowerConfig()
-	res.Number = idx
-	res.State = cfg.Relay[idx] && state
-
-	resp.Results = &res
-	resp.Status = "OK"
+	control.SendObjectPwr(control.OBJECT_RELAY, idx, state)
+	state = waitForResponce(&resp)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -245,17 +166,12 @@ func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	resp.Results = &res
 
 	state := parseState(r)
 
-	//TODO: set this param
-
-	cfg := control.GetPowerConfig()
-	res.Number = 0
-	res.State = cfg.Wifi && state
-
-	resp.Results = &res
-	resp.Status = "OK"
+	control.SendObjectPwr(control.OBJECT_WIFI, 0, state)
+	state = waitForResponce(&resp)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -267,17 +183,12 @@ func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 func SetWaitmode(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	resp.Results = &res
 
 	state := parseState(r)
 
-	//TODO: set this param
-
-	cfg := control.GetPowerConfig()
-	res.Number = 0
-	res.State = cfg.Waitmode && state
-
-	resp.Results = &res
-	resp.Status = "OK"
+	control.SendCommand(control.CMD_PC_WAITMODE, state)
+	state = waitForResponce(&resp)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

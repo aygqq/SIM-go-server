@@ -9,10 +9,29 @@
 package swagger
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"../control"
 )
 
 func SetButtonsLock(w http.ResponseWriter, r *http.Request) {
+	var res RespStateResults
+	var resp RespState
+	resp.Results = &res
+
+	state := parseState(r)
+	if state == true {
+		control.SendShort(control.CMD_LOCK, 1)
+	} else {
+		control.SendShort(control.CMD_UNLOCK, 1)
+	}
+	state = waitForResponce(&resp)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }

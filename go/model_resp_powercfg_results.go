@@ -10,19 +10,19 @@ package swagger
 
 type RespPowercfgResults struct {
 	// Static power or battery
-	PowerStat bool `json:"power_stat,omitempty"`
+	PowerStat bool `json:"power_stat"`
 	// Battery level
-	BatLevel uint8 `json:"bat_level,omitempty"`
+	BatLevel uint8 `json:"bat_level"`
 	// PC power control
-	Pc bool `json:"pc,omitempty"`
+	Pc bool `json:"pc"`
 	// Wifi power control
-	Wifi bool `json:"wifi,omitempty"`
+	Wifi bool `json:"wifi"`
 	// Relay 1 power control
-	Relay1 bool `json:"relay1,omitempty"`
+	Relay1 bool `json:"relay1"`
 	// Relay 2 power control
-	Relay2 bool `json:"relay2,omitempty"`
+	Relay2 bool `json:"relay2"`
 	// Modem 1 power control
-	Modem1 bool `json:"modem1,omitempty"`
+	Modem1 bool `json:"modem1"`
 	// Modem 2 power control
-	Modem2 bool `json:"modem2,omitempty"`
+	Modem2 bool `json:"modem2"`
 }

@@ -10,13 +10,13 @@ package swagger
 
 type RespModemstateResults struct {
 	// Flightmode state
-	Flymode bool `json:"flymode,omitempty"`
+	Flymode bool `json:"flymode"`
 	// Number of current sim-card in bank
-	SimNum uint8 `json:"sim_num,omitempty"`
+	SimNum uint8 `json:"sim_num"`
 	// ICCID of current sim-card
-	SimId string `json:"sim_id,omitempty"`
+	SimId string `json:"sim_id"`
 	// IMEI of modem
-	Imei string `json:"imei,omitempty"`
+	Imei string `json:"imei"`
 	// Current phone number
-	Phone string `json:"phone,omitempty"`
+	Phone string `json:"phone"`
 }

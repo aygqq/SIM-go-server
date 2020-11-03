@@ -146,46 +146,11 @@ var routes = Routes{
 	},
 
 	Route{
-		"GetPwrBat",
-		strings.ToUpper("Get"),
-		"/power/battery",
-		GetPwrBat,
-	},
-
-	Route{
 		"GetPwrCfg",
 		strings.ToUpper("Get"),
 		"/power",
 		GetPwrCfg,
 	},
-
-	// Route{
-	// 	"GetPwrModemByID",
-	// 	strings.ToUpper("Get"),
-	// 	"/power/modem",
-	// 	GetPwrModemByID,
-	// },
-
-	// Route{
-	// 	"GetPwrPC",
-	// 	strings.ToUpper("Get"),
-	// 	"/power/pc",
-	// 	GetPwrPC,
-	// },
-
-	// Route{
-	// 	"GetPwrRelayByID",
-	// 	strings.ToUpper("Get"),
-	// 	"/power/relay",
-	// 	GetPwrRelayByID,
-	// },
-
-	// Route{
-	// 	"GetPwrWiFi",
-	// 	strings.ToUpper("Get"),
-	// 	"/power/wifi",
-	// 	GetPwrWiFi,
-	// },
 
 	Route{
 		"SetPwrCfg",
