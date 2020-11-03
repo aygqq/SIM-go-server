@@ -10,7 +10,7 @@ package swagger
 
 type RespSmsResults struct {
 	// Number
-	Number uint8 `json:"number,omitempty"`
+	Number uint8 `json:"number"`
 	// Phone number
 	Phone string `json:"phone,omitempty"`
 	// Some text message

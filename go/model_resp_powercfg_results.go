@@ -25,4 +25,8 @@ type RespPowercfgResults struct {
 	Modem1 bool `json:"modem1"`
 	// Modem 2 power control
 	Modem2 bool `json:"modem2"`
+	// Modem 1 sim num
+	SimNum1 uint8 `json:"sim_num1"`
+	// Modem 2 sim num
+	SimNum2 uint8 `json:"sim_num2"`
 }

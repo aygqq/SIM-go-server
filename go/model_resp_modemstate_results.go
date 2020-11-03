@@ -9,6 +9,8 @@
 package swagger
 
 type RespModemstateResults struct {
+	// Number
+	Number uint8 `json:"number"`
 	// Flightmode state
 	Flymode bool `json:"flymode"`
 	// Number of current sim-card in bank

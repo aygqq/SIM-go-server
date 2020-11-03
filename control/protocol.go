@@ -106,7 +106,9 @@ func SendObjectPwr(obj uint8, idx uint8, state bool) {
 }
 
 func SendSetImei(idx uint8, imei string) {
-	var buf = make([]byte, 1+len(imei))
+
+	len := 1 + IMEI_SIZE
+	var buf = make([]byte, len)
 
 	buf[0] = idx
 	copy(buf[1:], imei)
@@ -175,6 +177,22 @@ func SendNewPhones(ph ModemPhones) {
 	SendData(CMD_NEW_PHONES, buf[:])
 }
 
+func SendSmsMessage(idx uint8, phone string, sms string) {
+	len := 1 + PHONE_SIZE + len(sms)
+	var buf = make([]byte, len)
+
+	var ptr int = 0
+	buf[ptr] = idx
+	ptr++
+
+	copy(buf[ptr:], phone)
+	ptr += PHONE_SIZE
+
+	copy(buf[ptr:], sms)
+
+	SendData(CMD_NEW_PHONES, buf[:])
+}
+
 func Callback(data []byte) {
 	crc := crc16.Checksum(data[:len(data)-1], table)
 
@@ -188,7 +206,7 @@ func Callback(data []byte) {
 	}
 	fmt.Printf("  \n")
 	//! Return here bacause of there are blocking by channel below
-	return
+	//return
 
 	switch data[0] {
 	case CMD_LOCK:

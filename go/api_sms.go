@@ -17,27 +17,65 @@ import (
 )
 
 func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
+	var res RespSmsResults
+	var resp RespSms
+	resp.Results = &res
+
+	res.Number = 0
+	res.Phone = "phone"
+	res.Message = "sms"
+
+	resp.Status = "OK"
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }
 
 func SetSendSms(w http.ResponseWriter, r *http.Request) {
+	var res RespSmsResults
+	var resp RespSms
+
+	idx, phone, sms := parseNumberPhoneSms(r)
+
+	control.SendSmsMessage(idx, phone, sms)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = idx
+		res.Phone = phone
+		res.Message = sms
+		resp.Results = &res
+		//control.ModemSt[idx].SimNum = num
+	}
+	resp.Status = status
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }
 
 func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
-	state := parseState(r)
+	_, state := parseNumberState(r)
 	if state == true {
 		control.SendShort(control.CMD_LOCK, 1)
 	} else {
 		control.SendShort(control.CMD_UNLOCK, 1)
 	}
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = 0
+		res.State = state
+		resp.Results = &res
+		control.SystemSt.SmsLock = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

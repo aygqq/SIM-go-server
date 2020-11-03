@@ -43,67 +43,75 @@ func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
 	var res RespPowercfgResults
 	var resp RespPowercfg
-	var state bool
+
+	newCfg := control.GetConfigFile()
 
 	for k, v := range r.URL.Query() {
 		fmt.Printf("%s: %s\n", k, v)
 		if k == "pc" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Pc = true
+			} else {
+				newCfg.Power.Pc = false
 			}
-			doSth(state)
 		} else if k == "wifi" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Wifi = true
+			} else {
+				newCfg.Power.Wifi = false
 			}
-			doSth(state)
 		} else if k == "relay1" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Relay[0] = true
+			} else {
+				newCfg.Power.Relay[0] = false
 			}
-			doSth(state)
 		} else if k == "relay2" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Relay[1] = true
+			} else {
+				newCfg.Power.Relay[1] = false
 			}
-			doSth(state)
 		} else if k == "modem1" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Modem[0] = true
+			} else {
+				newCfg.Power.Modem[0] = false
 			}
-			doSth(state)
 		} else if k == "modem2" {
 			if v[0] == "true" {
-				state = true
-			} else if v[0] == "false" {
-				state = false
+				newCfg.Power.Modem[1] = true
+			} else {
+				newCfg.Power.Modem[1] = false
 			}
-			doSth(state)
+		} else if k == "simnum1" {
+			tmp := []byte(v[0])
+			newCfg.SimNum[0] = tmp[0] - '0'
+		} else if k == "simnum2" {
+			tmp := []byte(v[0])
+			newCfg.SimNum[1] = tmp[0] - '0'
 		}
 	}
 
-	cfg := control.GetPowerConfig()
-	res.PowerStat = cfg.PowerStat
-	res.BatLevel = cfg.BatLevel
-	res.Pc = cfg.Pc
-	res.Wifi = cfg.Wifi
-	res.Relay1 = cfg.Relay[0]
-	res.Relay2 = cfg.Relay[1]
-	res.Modem1 = cfg.Modem[0]
-	res.Modem2 = cfg.Modem[1]
+	control.SendConfig(newCfg)
 
-	resp.Results = &res
-	resp.Status = "OK"
+	status, ret := waitForResponce()
+	if ret == true {
+		cfg := control.GetPowerConfig()
+		res.PowerStat = cfg.PowerStat
+		res.BatLevel = cfg.BatLevel
+		res.Pc = cfg.Pc
+		res.Wifi = cfg.Wifi
+		res.Relay1 = cfg.Relay[0]
+		res.Relay2 = cfg.Relay[1]
+		res.Modem1 = cfg.Modem[0]
+		res.Modem2 = cfg.Modem[1]
+		res.SimNum1 = control.ModemSt[0].SimNum
+		res.SimNum1 = control.ModemSt[1].SimNum
+
+		resp.Results = &res
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -115,12 +123,18 @@ func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
 func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
 	idx, state := parseNumberState(r)
 
 	control.SendObjectPwr(control.OBJECT_MODEM, idx, state)
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = idx
+		res.State = state
+		resp.Results = &res
+		control.PowerSt.Modem[idx] = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -132,12 +146,18 @@ func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 func SetPwrPC(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
-	state := parseState(r)
+	_, state := parseNumberState(r)
 
 	control.SendObjectPwr(control.OBJECT_PC, 0, state)
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = 0
+		res.State = state
+		resp.Results = &res
+		control.PowerSt.Pc = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -149,12 +169,18 @@ func SetPwrPC(w http.ResponseWriter, r *http.Request) {
 func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
 	idx, state := parseNumberState(r)
 
 	control.SendObjectPwr(control.OBJECT_RELAY, idx, state)
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = idx
+		res.State = state
+		resp.Results = &res
+		control.PowerSt.Relay[idx] = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -166,12 +192,18 @@ func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
-	state := parseState(r)
+	_, state := parseNumberState(r)
 
 	control.SendObjectPwr(control.OBJECT_WIFI, 0, state)
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = 0
+		res.State = state
+		resp.Results = &res
+		control.PowerSt.Wifi = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -183,12 +215,18 @@ func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 func SetWaitmode(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
-	state := parseState(r)
+	_, state := parseNumberState(r)
 
 	control.SendCommand(control.CMD_PC_WAITMODE, state)
-	state = waitForResponce(&resp)
+	status, ret := waitForResponce()
+	if ret == true {
+		res.Number = 0
+		res.State = state
+		resp.Results = &res
+		control.PowerSt.Waitmode = state
+	}
+	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

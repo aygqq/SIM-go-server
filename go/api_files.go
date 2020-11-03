@@ -9,6 +9,7 @@
 package swagger
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,56 +20,62 @@ import (
 
 func GetFileConfig(w http.ResponseWriter, r *http.Request) {
 	var resp RespFilecfg
-	resp.Results = control.GetConfigFile()
+	resp.Results = control.GetConfigFileString()
 	resp.Status = "OK"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Fprintf(w, "Results: %s\n", resp.Results)
-	fmt.Fprintf(w, "Status: %s\n", resp.Status)
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }
 
 func GetFilePhones(w http.ResponseWriter, r *http.Request) {
 	var resp RespFilephones
-	resp.Results = control.GetPhonesFile()
+
+	control.GetPhonesFile(&resp.Results)
 	resp.Status = "OK"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
-	fmt.Fprintf(w, "Results: %s\n", resp.Results)
-	fmt.Fprintf(w, "Status: %s\n", resp.Status)
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }
 
 func SetFileConfig(w http.ResponseWriter, r *http.Request) {
+	var resp RespFilecfg
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
 	}
-	str := string(body)
-	fmt.Printf("Request body is %s\n", str)
+	cfg := string(body)
+	//fmt.Printf("Request body is %s\n", cfg)
 
-	control.SetConfigFile(str)
+	control.SetConfigFile(cfg)
 
-	var resp RespFilecfg
-	resp.Results = control.GetConfigFile()
+	resp.Results = control.GetConfigFileString()
 	resp.Status = "OK"
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }
 
 func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
+	var resp RespFilephones
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
 	}
-	str := string(body)
-	fmt.Printf("Request body is %s\n", str)
+	//str := string(body)
+	//fmt.Printf("Request body is %s\n", str)
 
-	control.SetPhonesFile(str)
+	err = json.Unmarshal(body, &resp.Results)
+	control.SetPhonesFile(&resp.Results)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

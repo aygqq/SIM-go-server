@@ -18,13 +18,15 @@ const (
 	CMD_PC_SHUTDOWN    = 14 // [cmd, len, 1]
 	CMD_PC_READY       = 15 // [cmd, len, 1]
 	CMD_NEW_PHONES     = 16 // [cmd, len, data]
-	CMD_REQ_MODEM_INFO = 17 // [cmd, len, idx]
-	CMD_REQ_PHONES     = 18 // [cmd, len, 0]
-	CMD_REQ_REASON     = 19 // [cmd, len, 0]
-	CMD_OUT_SHUTDOWN   = 20 // [cmd, len, 1]
-	CMD_OUT_SAVE_STATE = 21 // [cmd, len, data]
-	CMD_OUT_SIM_CHANGE = 22 // [cmd, len, data]
-	CMD_OUT_AT_CMD     = 23 // [cmd, len, ]
+	CMD_SEND_SMS       = 17 // [cmd, len, idx, type, phone, msg]
+	CMD_REQ_MODEM_INFO = 18 // [cmd, len, idx]
+	CMD_REQ_PHONES     = 19 // [cmd, len, 0]
+	CMD_REQ_REASON     = 20 // [cmd, len, 0]
+	CMD_OUT_SHUTDOWN   = 21 // [cmd, len, 1]
+	CMD_OUT_SAVE_STATE = 22 // [cmd, len, data]
+	CMD_OUT_SIM_CHANGE = 23 // [cmd, len, data]
+	CMD_OUT_SMS        = 24 // [cmd, len, idx, type, phone, msg]
+	CMD_OUT_AT_CMD     = 25 // [cmd, len, ]
 
 	OBJECT_PC        = 1
 	OBJECT_MODEM     = 2
@@ -38,7 +40,7 @@ const (
 )
 
 type PowerStatus struct {
-	// Static power or battery
+	// Static or battery power
 	PowerStat bool
 	// Battery level
 	BatLevel uint8

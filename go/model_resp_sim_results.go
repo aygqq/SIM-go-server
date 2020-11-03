@@ -10,7 +10,7 @@ package swagger
 
 type RespSimResults struct {
 	// Number
-	Number uint8 `json:"number,omitempty"`
+	Number uint8 `json:"number"`
 	// sim num
 	SimNum uint8 `json:"sim_num,omitempty"`
 }

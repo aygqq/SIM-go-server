@@ -6,68 +6,52 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 var CfgFile FileConfig
 var phFile FilePhones
 
-func SetPhonesFile(str string) int {
-	var record []string
-
-	lines := strings.Split(str, ";")
-	if len(lines) != 12 {
-		return 1
-	}
-	for i := 0; i < len(lines); i++ {
-		record = strings.Split(lines[i], ",")
-		if len(record) != 3 {
-			return 1
-		}
-
+func SetPhonesFile(records *[12][3]string) int {
+	fmt.Println("SetPhonesFile")
+	for i := 0; i < 12; i++ {
 		if i < 4 {
-			phFile.Bank1[i].SimId = record[0]
-			phFile.Bank1[i].Imei = record[1]
-			phFile.Bank1[i].OperId = record[2]
+			phFile.Bank1[i].SimId = records[i][0]
+			phFile.Bank1[i].Imei = records[i][1]
+			phFile.Bank1[i].OperId = records[i][2]
 		} else if i < 8 {
-			phFile.Bank2[i-4].SimId = record[0]
-			phFile.Bank2[i-4].Imei = record[1]
-			phFile.Bank2[i-4].OperId = record[2]
+			phFile.Bank2[i-4].SimId = records[i][0]
+			phFile.Bank2[i-4].Imei = records[i][1]
+			phFile.Bank2[i-4].OperId = records[i][2]
 		} else {
-			phFile.Phones.PhonesOut[i-8] = record[0]
-			phFile.Phones.PhonesIn[i-8] = record[1]
+			phFile.Phones.PhonesOut[i-8] = records[i][0]
+			phFile.Phones.PhonesIn[i-8] = records[i][1]
 		}
 	}
 
 	return 0
 }
 
-func GetPhonesFile() string {
-	var str string
-	var record [3]string
-
+func GetPhonesFile(records *[12][3]string) {
+	fmt.Println("GetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			record[0] = phFile.Bank1[i].SimId
-			record[1] = phFile.Bank1[i].Imei
-			record[2] = phFile.Bank1[i].OperId
+			records[i][0] = phFile.Bank1[i].SimId
+			records[i][1] = phFile.Bank1[i].Imei
+			records[i][2] = phFile.Bank1[i].OperId
 		} else if i < 8 {
-			record[0] = phFile.Bank2[i-4].SimId
-			record[1] = phFile.Bank2[i-4].Imei
-			record[2] = phFile.Bank2[i-4].OperId
+			records[i][0] = phFile.Bank2[i-4].SimId
+			records[i][1] = phFile.Bank2[i-4].Imei
+			records[i][2] = phFile.Bank2[i-4].OperId
 		} else {
-			record[0] = phFile.Phones.PhonesOut[i-8]
-			record[1] = phFile.Phones.PhonesIn[i-8]
-			record[2] = ""
+			records[i][0] = phFile.Phones.PhonesOut[i-8]
+			records[i][1] = phFile.Phones.PhonesIn[i-8]
+			records[i][2] = ""
 		}
-
-		str += record[0] + "," + record[1] + "," + record[2] + "\n"
 	}
-
-	return str
 }
 
 func readPhonesFile(path string) (FilePhones, error) {
+	fmt.Println("readPhonesFile")
 	var ph FilePhones
 
 	csvfile, err := os.Open(path)
@@ -244,8 +228,12 @@ func SetConfigFile(str string) {
 	CfgFile = StrToCfg(str)
 }
 
-func GetConfigFile() string {
+func GetConfigFileString() string {
 	return CfgToString(CfgFile)
+}
+
+func GetConfigFile() FileConfig {
+	return CfgFile
 }
 
 func readConfigFile(path string) (FileConfig, error) {
