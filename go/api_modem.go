@@ -21,13 +21,17 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespModemconn
 	resp.Results = &res
 
-	idx, _ := parseNumberState(r)
+	idx, _, err := parseNumberState(r)
 
-	res.Number = idx
-	res.Operator = control.ConnSt[idx].Operator
-	res.BaseId = control.ConnSt[idx].BaseId
-	res.Signal = control.ConnSt[idx].Signal
-	resp.Status = "OK"
+	if err == 0 {
+		res.Number = idx
+		res.Operator = control.ConnSt[idx].Operator
+		res.BaseId = control.ConnSt[idx].BaseId
+		res.Signal = control.ConnSt[idx].Signal
+		resp.Status = "OK"
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -41,11 +45,15 @@ func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespState
 	resp.Results = &res
 
-	idx, _ := parseNumberState(r)
+	idx, _, err := parseNumberState(r)
 
-	res.Number = idx
-	res.State = control.ModemSt[idx].Flymode
-	resp.Status = "OK"
+	if err == 0 {
+		res.Number = idx
+		res.State = control.ModemSt[idx].Flymode
+		resp.Status = "OK"
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -59,11 +67,15 @@ func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespImei
 	resp.Results = &res
 
-	idx, _ := parseNumberState(r)
+	idx, _, err := parseNumberState(r)
 
-	res.Number = idx
-	res.Imei = control.ModemSt[idx].Imei
-	resp.Status = "OK"
+	if err == 0 {
+		res.Number = idx
+		res.Imei = control.ModemSt[idx].Imei
+		resp.Status = "OK"
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -77,11 +89,15 @@ func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespSim
 	resp.Results = &res
 
-	idx, _ := parseNumberState(r)
+	idx, _, err := parseNumberState(r)
 
-	res.Number = idx
-	res.SimNum = control.ModemSt[idx].SimNum
-	resp.Status = "OK"
+	if err == 0 {
+		res.Number = idx
+		res.SimNum = control.ModemSt[idx].SimNum
+		resp.Status = "OK"
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -95,15 +111,19 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespModemstate
 	resp.Results = &res
 
-	idx, _ := parseNumberState(r)
+	idx, _, err := parseNumberState(r)
 
-	res.Number = idx
-	res.Flymode = control.ModemSt[idx].Flymode
-	res.Imei = control.ModemSt[idx].Imei
-	res.Phone = control.ModemSt[idx].Phone
-	res.SimId = control.ModemSt[idx].SimId
-	res.SimNum = control.ModemSt[idx].SimNum
-	resp.Status = "OK"
+	if err == 0 {
+		res.Number = idx
+		res.Flymode = control.ModemSt[idx].Flymode
+		res.Imei = control.ModemSt[idx].Imei
+		res.Phone = control.ModemSt[idx].Phone
+		res.SimId = control.ModemSt[idx].SimId
+		res.SimNum = control.ModemSt[idx].SimNum
+		resp.Status = "OK"
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -116,17 +136,21 @@ func SetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	idx, state := parseNumberState(r)
+	idx, state, err := parseNumberState(r)
 
-	control.SendFlightmode(idx, state)
-	status, ret := waitForResponce()
-	if ret == true {
-		res.Number = idx
-		res.State = state
-		resp.Results = &res
-		control.ModemSt[idx].Flymode = state
+	if err == 0 {
+		control.SendFlightmode(idx, state)
+		status, ret := waitForResponce()
+		if ret == true {
+			res.Number = idx
+			res.State = state
+			resp.Results = &res
+			control.ModemSt[idx].Flymode = state
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
 	}
-	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -139,17 +163,21 @@ func SetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
 
-	idx, imei := parseNumberImei(r)
+	idx, imei, err := parseNumberImei(r)
 
-	control.SendSetImei(idx, imei)
-	status, ret := waitForResponce()
-	if ret == true {
-		res.Number = idx
-		res.Imei = imei
-		resp.Results = &res
-		control.ModemSt[idx].Imei = imei
+	if err == 0 {
+		control.SendSetImei(idx, imei)
+		status, ret := waitForResponce()
+		if ret == true {
+			res.Number = idx
+			res.Imei = imei
+			resp.Results = &res
+			control.ModemSt[idx].Imei = imei
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
 	}
-	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -162,17 +190,21 @@ func SetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	var res RespSimResults
 	var resp RespSim
 
-	idx, num := parseNumberSim(r)
+	idx, num, err := parseNumberSim(r)
 
-	control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
-	status, ret := waitForResponce()
-	if ret == true {
-		res.Number = idx
-		res.SimNum = num
-		resp.Results = &res
-		control.ModemSt[idx].SimNum = num
+	if err == 0 {
+		control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
+		status, ret := waitForResponce()
+		if ret == true {
+			res.Number = idx
+			res.SimNum = num
+			resp.Results = &res
+			control.ModemSt[idx].SimNum = num
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
 	}
-	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

@@ -20,20 +20,24 @@ func SetButtonsLock(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	_, state := parseNumberState(r)
-	if state == true {
-		control.SendShort(control.CMD_LOCK, 1)
+	_, state, err := parseNumberState(r)
+	if err == 0 {
+		if state == true {
+			control.SendShort(control.CMD_LOCK, 1)
+		} else {
+			control.SendShort(control.CMD_UNLOCK, 1)
+		}
+		status, ret := waitForResponce()
+		if ret == true {
+			res.Number = 0
+			res.State = state
+			resp.Results = &res
+			control.SystemSt.ButtonsLock = state
+		}
+		resp.Status = status
 	} else {
-		control.SendShort(control.CMD_UNLOCK, 1)
+		resp.Status = "INVALID_REQUEST"
 	}
-	status, ret := waitForResponce()
-	if ret == true {
-		res.Number = 0
-		res.State = state
-		resp.Results = &res
-		control.SystemSt.ButtonsLock = state
-	}
-	resp.Status = status
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)

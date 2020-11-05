@@ -8,80 +8,103 @@ import (
 	"../control"
 )
 
-func parseNumberState(r *http.Request) (uint8, bool) {
+func parseNumberState(r *http.Request) (uint8, bool, uint8) {
 	var idx uint8
 	var state bool
+	var err uint8
 
 	for k, v := range r.URL.Query() {
-		fmt.Printf("%s: %s\n", k, v)
 		if k == "number" {
 			tmp := []byte(v[0])
 			idx = tmp[0] - '0'
+			if idx > 2 || idx < 1 {
+				err = 1
+			}
 		} else if k == "state" {
 			if v[0] == "true" {
 				state = true
 			} else if v[0] == "false" {
 				state = false
+			} else {
+				err = 1
 			}
 		}
 	}
 
-	return idx, state
+	return idx, state, err
 }
 
-func parseNumberImei(r *http.Request) (uint8, string) {
+func parseNumberImei(r *http.Request) (uint8, string, uint8) {
 	var idx uint8
-	var str string
+	var imei string
+	var err uint8
 
 	for k, v := range r.URL.Query() {
-		fmt.Printf("%s: %s\n", k, v)
 		if k == "number" {
 			tmp := []byte(v[0])
 			idx = tmp[0] - '0'
+			if idx > 2 || idx < 1 {
+				err = 1
+			}
 		} else if k == "imei" {
-			str = v[0]
+			imei = v[0]
+			if len(imei) != control.IMEI_SIZE {
+				err = 1
+			}
 		}
 	}
 
-	return idx, str
+	return idx, imei, err
 }
 
-func parseNumberSim(r *http.Request) (uint8, uint8) {
+func parseNumberSim(r *http.Request) (uint8, uint8, uint8) {
 	var idx uint8
 	var num uint8
+	var err uint8
 
 	for k, v := range r.URL.Query() {
-		fmt.Printf("%s: %s\n", k, v)
 		if k == "number" {
 			tmp := []byte(v[0])
 			idx = tmp[0] - '0'
+			if idx > 2 || idx < 1 {
+				err = 1
+			}
 		} else if k == "sim_num" {
 			tmp := []byte(v[0])
 			num = tmp[0] - '0'
+			if num > 4 || num < 1 {
+				err = 1
+			}
 		}
 	}
 
-	return idx, num
+	return idx, num, err
 }
 
-func parseNumberPhoneSms(r *http.Request) (uint8, string, string) {
+func parseNumberPhoneSms(r *http.Request) (uint8, string, string, uint8) {
 	var idx uint8
 	var phone string
 	var sms string
+	var err uint8
 
 	for k, v := range r.URL.Query() {
-		fmt.Printf("%s: %s\n", k, v)
 		if k == "number" {
 			tmp := []byte(v[0])
 			idx = tmp[0] - '0'
+			if idx > 2 || idx < 1 {
+				err = 1
+			}
 		} else if k == "phone" {
 			phone = v[0]
+			if len(phone) > control.PHONE_SIZE {
+				err = 1
+			}
 		} else if k == "message" {
 			sms = v[0]
 		}
 	}
 
-	return idx, phone, sms
+	return idx, phone, sms, err
 }
 
 func waitForResponce() (string, bool) {
@@ -91,11 +114,12 @@ func waitForResponce() (string, bool) {
 	control.FlagWaitResp = true
 	select {
 	case read := <-control.HttpReqChan:
+		//! COM now in echo mode, so that "read" value doesn't matter
 		// if read == 1 {
 		// 	status = "OK"
 		// 	ret = true
 		// } else {
-		// 	status = "ERROR"
+		// 	status = "EXECUTE_ERROR"
 		// 	ret = false
 		// }
 		fmt.Printf("Chanel recv %d\n", read)
@@ -103,7 +127,7 @@ func waitForResponce() (string, bool) {
 		ret = true
 	case <-time.After(time.Second):
 		fmt.Println("No response received")
-		status = "ERROR"
+		status = "EXECUTE_ERROR"
 		ret = false
 	}
 	return status, ret
