@@ -10,7 +10,7 @@ import (
 
 var table *crc16.Table
 
-func Init() {
+func InitProtocol() {
 	fmt.Printf("Init protocol\n")
 
 	com.Init(Callback)
@@ -347,36 +347,36 @@ func Callback(data []byte) {
 	case CMD_REQ_MODEM_INFO:
 		fmt.Printf("CMD_REQ_MODEM_INFO\n")
 
-		var st [2]ModemStatus
+		var st ModemStatus
 		var ptr int = 2
-		idx := data[ptr]
+		//idx := data[ptr]
 		ptr++
 		if data[ptr] == 1 {
-			st[idx].Flymode = true
+			st.Flymode = true
 		} else {
-			st[idx].Flymode = false
+			st.Flymode = false
 		}
 		ptr++
-		st[idx].SimNum = data[ptr]
+		st.SimNum = data[ptr]
 		ptr++
 
 		var simid = make([]byte, SIMID_SIZE)
 		copy(simid, data[ptr:ptr+SIMID_SIZE])
-		st[idx].SimId = string(simid)
+		st.SimId = string(simid)
 		ptr += SIMID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
-		st[idx].Phone = string(phone)
+		st.Phone = string(phone)
 		ptr += PHONE_SIZE
 
 		var imei = make([]byte, IMEI_SIZE)
 		copy(imei, data[ptr:ptr+IMEI_SIZE])
-		st[idx].Imei = string(imei)
+		st.Imei = string(imei)
 		ptr += IMEI_SIZE
 
-		ModemSt[0] = st[0]
-		ModemSt[1] = st[1]
+		modemStReq = st
+
 		ControlReqChan <- 1
 	case CMD_REQ_PHONES:
 		fmt.Printf("CMD_REQ_PHONES\n")
@@ -396,13 +396,14 @@ func Callback(data []byte) {
 			ptr += PHONE_SIZE
 		}
 
-		ModemPh = ph
+		modemPhReq = ph
 		ControlReqChan <- 1
 	case CMD_REQ_REASON:
 		fmt.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
-		copy(SystemSt.ReasonBuf, data[2:2+len])
+		SystemSt.ReasonBuf = string(data[2 : 2+len])
+		//copy(SystemSt.ReasonBuf, data[2:2+len])
 		ControlReqChan <- 1
 	case CMD_OUT_SHUTDOWN:
 		fmt.Printf("CMD_OUT_SHUTDOWN\n")

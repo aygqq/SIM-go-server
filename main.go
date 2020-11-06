@@ -30,7 +30,7 @@ func main() {
 	log.Printf("Hello programm")
 
 	time.Sleep(time.Second)
-	control.Init()
+	control.InitProtocol()
 
 	log.Printf("Server started")
 

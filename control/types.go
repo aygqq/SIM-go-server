@@ -34,9 +34,10 @@ const (
 	OBJECT_RELAY     = 4
 	OBJECT_SMS_MODEM = 5
 
-	IMEI_SIZE  = 16
-	PHONE_SIZE = 26
-	SIMID_SIZE = 20
+	IMEI_SIZE   = 16
+	PHONE_SIZE  = 26
+	SIMID_SIZE  = 20
+	OPERID_SIZE = 5
 )
 
 type PowerStatus struct {
@@ -78,17 +79,10 @@ type ModemConnStatus struct {
 	Signal string
 }
 
-type RequiredElement struct {
-	State  *bool
-	Number *int32
-	String *string
-}
-
 type SystemStatus struct {
 	SmsLock     bool
 	ButtonsLock bool
-	ReasonBuf   []byte
-	ReqElem     RequiredElement
+	ReasonBuf   string
 }
 
 type ModemPhones struct {
@@ -111,7 +105,13 @@ type FileConfig struct {
 }
 
 type FilePhones struct {
-	Bank1  [4]ModemSimParams
-	Bank2  [4]ModemSimParams
+	Bank   [2][4]ModemSimParams
 	Phones ModemPhones
+}
+
+type ModemPowerConfig struct {
+	m1Pwr uint8
+	m1Sim uint8
+	m2Pwr uint8
+	m2Sim uint8
 }

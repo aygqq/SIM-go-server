@@ -2,8 +2,8 @@ package control
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 )
@@ -11,17 +11,138 @@ import (
 var CfgFile FileConfig
 var phFile FilePhones
 
+func checkSimId(str string) error {
+	data := []byte(str)
+	err := errors.New("Failed to parse SimId")
+
+	if len(data) != SIMID_SIZE {
+		return err
+	}
+
+	for i := 0; i < SIMID_SIZE; i++ {
+		if data[i] < '0' || data[i] > '9' {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func checkImei(str string) error {
+	data := []byte(str)
+	err := errors.New("Failed to parse IMEI")
+
+	if len(data) != IMEI_SIZE {
+		return err
+	}
+
+	for i := 0; i < IMEI_SIZE; i++ {
+		if (data[i] < '0' || data[i] > '9') && data[i] != '-' {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func checkOperId(str string) error {
+	data := []byte(str)
+	err := errors.New("Failed to parse OperId")
+
+	if len(data) != OPERID_SIZE {
+		return err
+	}
+
+	for i := 0; i < OPERID_SIZE; i++ {
+		if data[i] < '0' || data[i] > '9' {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func checkPhone(str string) error {
+	data := []byte(str)
+	err := errors.New("Failed to parse IMEI")
+	isEmpty := true
+	isWrong := false
+
+	if len(data) > PHONE_SIZE {
+		return err
+	}
+
+	for i := 0; i < len(data); i++ {
+		if data[i] != '*' {
+			isEmpty = false
+		}
+	}
+
+	for i := 0; i < len(data); i++ {
+		if (data[i] < '0' || data[i] > '9') && data[i] != '+' {
+			isWrong = true
+		}
+	}
+
+	if isWrong == true && isEmpty == false {
+		return err
+	}
+
+	return nil
+}
+
+func checkPhonesFile(file *FilePhones) error {
+	var err error
+
+	for i := 0; i < 4; i++ {
+		err = checkSimId(file.Bank[0][i].SimId)
+		if err != nil {
+			return err
+		}
+		err = checkImei(file.Bank[0][i].Imei)
+		if err != nil {
+			return err
+		}
+		err = checkOperId(file.Bank[0][i].OperId)
+		if err != nil {
+			return err
+		}
+		err = checkSimId(file.Bank[1][i].SimId)
+		if err != nil {
+			return err
+		}
+		err = checkImei(file.Bank[1][i].Imei)
+		if err != nil {
+			return err
+		}
+		err = checkOperId(file.Bank[0][i].OperId)
+		if err != nil {
+			return err
+		}
+		err = checkPhone(file.Phones.PhonesIn[i])
+		if err != nil {
+			return err
+		}
+		err = checkPhone(file.Phones.PhonesOut[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func SetPhonesFile(records *[12][3]string) int {
 	fmt.Println("SetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			phFile.Bank1[i].SimId = records[i][0]
-			phFile.Bank1[i].Imei = records[i][1]
-			phFile.Bank1[i].OperId = records[i][2]
+			phFile.Bank[0][i].SimId = records[i][0]
+			phFile.Bank[0][i].Imei = records[i][1]
+			phFile.Bank[0][i].OperId = records[i][2]
 		} else if i < 8 {
-			phFile.Bank2[i-4].SimId = records[i][0]
-			phFile.Bank2[i-4].Imei = records[i][1]
-			phFile.Bank2[i-4].OperId = records[i][2]
+			phFile.Bank[1][i-4].SimId = records[i][0]
+			phFile.Bank[1][i-4].Imei = records[i][1]
+			phFile.Bank[1][i-4].OperId = records[i][2]
 		} else {
 			phFile.Phones.PhonesOut[i-8] = records[i][0]
 			phFile.Phones.PhonesIn[i-8] = records[i][1]
@@ -35,13 +156,13 @@ func GetPhonesFile(records *[12][3]string) {
 	fmt.Println("GetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			records[i][0] = phFile.Bank1[i].SimId
-			records[i][1] = phFile.Bank1[i].Imei
-			records[i][2] = phFile.Bank1[i].OperId
+			records[i][0] = phFile.Bank[0][i].SimId
+			records[i][1] = phFile.Bank[0][i].Imei
+			records[i][2] = phFile.Bank[0][i].OperId
 		} else if i < 8 {
-			records[i][0] = phFile.Bank2[i-4].SimId
-			records[i][1] = phFile.Bank2[i-4].Imei
-			records[i][2] = phFile.Bank2[i-4].OperId
+			records[i][0] = phFile.Bank[1][i-4].SimId
+			records[i][1] = phFile.Bank[1][i-4].Imei
+			records[i][2] = phFile.Bank[1][i-4].OperId
 		} else {
 			records[i][0] = phFile.Phones.PhonesOut[i-8]
 			records[i][1] = phFile.Phones.PhonesIn[i-8]
@@ -67,28 +188,27 @@ func readPhonesFile(path string) (FilePhones, error) {
 	for i := 0; i < 12; i++ {
 		// Read each record from csv
 		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
 			return ph, err
 		}
 
 		if i < 4 {
-			ph.Bank1[i].SimId = record[0]
-			ph.Bank1[i].Imei = record[1]
-			ph.Bank1[i].OperId = record[2]
+			ph.Bank[0][i].SimId = record[0]
+			ph.Bank[0][i].Imei = record[1]
+			ph.Bank[0][i].OperId = record[2]
 		} else if i < 8 {
-			ph.Bank2[i-4].SimId = record[0]
-			ph.Bank2[i-4].Imei = record[1]
-			ph.Bank2[i-4].OperId = record[2]
+			ph.Bank[1][i-4].SimId = record[0]
+			ph.Bank[1][i-4].Imei = record[1]
+			ph.Bank[1][i-4].OperId = record[2]
 		} else {
 			ph.Phones.PhonesOut[i-8] = record[0]
 			ph.Phones.PhonesIn[i-8] = record[1]
 		}
 	}
 
-	return ph, nil
+	err = checkPhonesFile(&ph)
+
+	return ph, err
 }
 
 func writePhonesFile(path string, ph FilePhones) error {
@@ -103,13 +223,13 @@ func writePhonesFile(path string, ph FilePhones) error {
 
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			record[0] = ph.Bank1[i].SimId
-			record[1] = ph.Bank1[i].Imei
-			record[2] = ph.Bank1[i].OperId
+			record[0] = ph.Bank[0][i].SimId
+			record[1] = ph.Bank[0][i].Imei
+			record[2] = ph.Bank[0][i].OperId
 		} else if i < 8 {
-			record[0] = ph.Bank2[i-4].SimId
-			record[1] = ph.Bank2[i-4].Imei
-			record[2] = ph.Bank2[i-4].OperId
+			record[0] = ph.Bank[1][i-4].SimId
+			record[1] = ph.Bank[1][i-4].Imei
+			record[2] = ph.Bank[1][i-4].OperId
 		} else {
 			record[0] = ph.Phones.PhonesOut[i-8]
 			record[1] = ph.Phones.PhonesIn[i-8]
@@ -175,12 +295,19 @@ func CfgToString(cfg FileConfig) string {
 	return str
 }
 
-func StrToCfg(str string) FileConfig {
+func StrToCfg(str string) (FileConfig, error) {
 	var cfg FileConfig
 
 	data := []byte(str)
 
+	if len(data) != 14 {
+		return cfg, errors.New("Config file format error!")
+	}
+
 	for i := 0; i < 14; i++ {
+		if data[i] < '0' || data[i] > '9' {
+			return cfg, errors.New("Config file format error!")
+		}
 		data[i] = data[i] - '0'
 	}
 
@@ -221,11 +348,13 @@ func StrToCfg(str string) FileConfig {
 		cfg.ConnectErr = true
 	}
 
-	return cfg
+	return cfg, nil
 }
 
-func SetConfigFile(str string) {
-	CfgFile = StrToCfg(str)
+func SetConfigFile(str string) error {
+	cfg, err := StrToCfg(str)
+	CfgFile = cfg
+	return err
 }
 
 func GetConfigFileString() string {
@@ -238,6 +367,8 @@ func GetConfigFile() FileConfig {
 
 func readConfigFile(path string) (FileConfig, error) {
 	var cfg FileConfig
+	var err error
+
 	bs, err := ioutil.ReadFile(path)
 	if err != nil {
 		return cfg, err
@@ -245,9 +376,9 @@ func readConfigFile(path string) (FileConfig, error) {
 	str := string(bs)
 	fmt.Println("Read: ", str)
 
-	cfg = StrToCfg(str)
+	cfg, err = StrToCfg(str)
 
-	return cfg, nil
+	return cfg, err
 }
 
 func writeConfigFile(path string, cfg FileConfig) error {
