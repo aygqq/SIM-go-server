@@ -16,7 +16,7 @@ type RespModemstateResults struct {
 	// Number of current sim-card in bank
 	SimNum uint8 `json:"sim_num"`
 	// ICCID of current sim-card
-	SimId string `json:"sim_id"`
+	Imsi string `json:"sim_id"`
 	// IMEI of modem
 	Imei string `json:"imei"`
 	// Current phone number

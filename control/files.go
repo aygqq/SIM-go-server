@@ -11,15 +11,15 @@ import (
 var CfgFile FileConfig
 var phFile FilePhones
 
-func checkSimId(str string) error {
+func checkImsi(str string) error {
 	data := []byte(str)
-	err := errors.New("Failed to parse SimId")
+	err := errors.New("Failed to parse Imsi")
 
-	if len(data) != SIMID_SIZE {
+	if len(data) != IMSI_SIZE {
 		return err
 	}
 
-	for i := 0; i < SIMID_SIZE; i++ {
+	for i := 0; i < IMSI_SIZE; i++ {
 		if data[i] < '0' || data[i] > '9' {
 			return err
 		}
@@ -37,7 +37,7 @@ func checkImei(str string) error {
 	}
 
 	for i := 0; i < IMEI_SIZE; i++ {
-		if (data[i] < '0' || data[i] > '9') && data[i] != '-' {
+		if data[i] < '0' || data[i] > '9' {
 			return err
 		}
 	}
@@ -95,7 +95,7 @@ func checkPhonesFile(file *FilePhones) error {
 	var err error
 
 	for i := 0; i < 4; i++ {
-		err = checkSimId(file.Bank[0][i].SimId)
+		err = checkImsi(file.Bank[0][i].Imsi)
 		if err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func checkPhonesFile(file *FilePhones) error {
 		if err != nil {
 			return err
 		}
-		err = checkSimId(file.Bank[1][i].SimId)
+		err = checkImsi(file.Bank[1][i].Imsi)
 		if err != nil {
 			return err
 		}
@@ -136,11 +136,11 @@ func SetPhonesFile(records *[12][3]string) int {
 	fmt.Println("SetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			phFile.Bank[0][i].SimId = records[i][0]
+			phFile.Bank[0][i].Imsi = records[i][0]
 			phFile.Bank[0][i].Imei = records[i][1]
 			phFile.Bank[0][i].OperId = records[i][2]
 		} else if i < 8 {
-			phFile.Bank[1][i-4].SimId = records[i][0]
+			phFile.Bank[1][i-4].Imsi = records[i][0]
 			phFile.Bank[1][i-4].Imei = records[i][1]
 			phFile.Bank[1][i-4].OperId = records[i][2]
 		} else {
@@ -156,11 +156,11 @@ func GetPhonesFile(records *[12][3]string) {
 	fmt.Println("GetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			records[i][0] = phFile.Bank[0][i].SimId
+			records[i][0] = phFile.Bank[0][i].Imsi
 			records[i][1] = phFile.Bank[0][i].Imei
 			records[i][2] = phFile.Bank[0][i].OperId
 		} else if i < 8 {
-			records[i][0] = phFile.Bank[1][i-4].SimId
+			records[i][0] = phFile.Bank[1][i-4].Imsi
 			records[i][1] = phFile.Bank[1][i-4].Imei
 			records[i][2] = phFile.Bank[1][i-4].OperId
 		} else {
@@ -193,11 +193,11 @@ func readPhonesFile(path string) (FilePhones, error) {
 		}
 
 		if i < 4 {
-			ph.Bank[0][i].SimId = record[0]
+			ph.Bank[0][i].Imsi = record[0]
 			ph.Bank[0][i].Imei = record[1]
 			ph.Bank[0][i].OperId = record[2]
 		} else if i < 8 {
-			ph.Bank[1][i-4].SimId = record[0]
+			ph.Bank[1][i-4].Imsi = record[0]
 			ph.Bank[1][i-4].Imei = record[1]
 			ph.Bank[1][i-4].OperId = record[2]
 		} else {
@@ -223,11 +223,11 @@ func writePhonesFile(path string, ph FilePhones) error {
 
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			record[0] = ph.Bank[0][i].SimId
+			record[0] = ph.Bank[0][i].Imsi
 			record[1] = ph.Bank[0][i].Imei
 			record[2] = ph.Bank[0][i].OperId
 		} else if i < 8 {
-			record[0] = ph.Bank[1][i-4].SimId
+			record[0] = ph.Bank[1][i-4].Imsi
 			record[1] = ph.Bank[1][i-4].Imei
 			record[2] = ph.Bank[1][i-4].OperId
 		} else {

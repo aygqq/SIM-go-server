@@ -1,6 +1,7 @@
 package control
 
 import (
+	"container/list"
 	"fmt"
 	"time"
 
@@ -13,7 +14,9 @@ var table *crc16.Table
 func InitProtocol() {
 	fmt.Printf("Init protocol\n")
 
-	com.Init(Callback)
+	com.Init(recieveHandler)
+
+	SmsList = list.New()
 
 	//! TODO: Table must be simmilar with PCB's table
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
@@ -177,23 +180,36 @@ func SendNewPhones(ph ModemPhones) {
 	SendData(CMD_NEW_PHONES, buf[:])
 }
 
-func SendSmsMessage(idx uint8, phone string, sms string) {
-	len := 1 + PHONE_SIZE + len(sms)
+func SendSmsMessage(sms *SmsMessage) {
+	len := 2 + PHONE_SIZE + len(sms.Message)
 	var buf = make([]byte, len)
 
 	var ptr int = 0
-	buf[ptr] = idx
+
+	// Modem num
+	buf[ptr] = sms.ModemNum
 	ptr++
 
-	copy(buf[ptr:], phone)
+	// Message type (now empty)
+	buf[ptr] = sms.MsgType
+	ptr++
+
+	// Phone number
+	copy(buf[ptr:], sms.Phone)
 	ptr += PHONE_SIZE
 
-	copy(buf[ptr:], sms)
+	// Message
+	copy(buf[ptr:], sms.Message)
 
 	SendData(CMD_NEW_PHONES, buf[:])
 }
 
-func Callback(data []byte) {
+func recieveHandler(data []byte) {
+	if int(data[1]) != (len(data) - 5) {
+		fmt.Printf("Wrong length %d (real %d)\n", data[1], (len(data) - 4))
+		return
+	}
+
 	crc := crc16.Checksum(data[:len(data)-1], table)
 
 	if crc != 0 {
@@ -344,6 +360,15 @@ func Callback(data []byte) {
 		} else {
 			ControlReqChan <- data[2]
 		}
+	case CMD_SEND_SMS:
+		fmt.Printf("CMD_SEND_SMS\n")
+
+		if FlagWaitResp == true {
+			HttpReqChan <- data[2]
+			FlagWaitResp = false
+		} else {
+			ControlReqChan <- data[2]
+		}
 	case CMD_REQ_MODEM_INFO:
 		fmt.Printf("CMD_REQ_MODEM_INFO\n")
 
@@ -360,10 +385,10 @@ func Callback(data []byte) {
 		st.SimNum = data[ptr]
 		ptr++
 
-		var simid = make([]byte, SIMID_SIZE)
-		copy(simid, data[ptr:ptr+SIMID_SIZE])
-		st.SimId = string(simid)
-		ptr += SIMID_SIZE
+		var imsi = make([]byte, IMSI_SIZE)
+		copy(imsi, data[ptr:ptr+IMSI_SIZE])
+		st.Imsi = string(imsi)
+		ptr += IMSI_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
@@ -407,14 +432,50 @@ func Callback(data []byte) {
 		ControlReqChan <- 1
 	case CMD_OUT_SHUTDOWN:
 		fmt.Printf("CMD_OUT_SHUTDOWN\n")
-		//TODO: Start algorithm
+
+		procShutdown()
 	case CMD_OUT_SAVE_STATE:
 		fmt.Printf("CMD_OUT_SAVE_STATE\n")
-		//TODO: Start algorithm
+
+		str := string(data[2 : 2+CONFIG_LEN])
+		cfg, err := StrToCfg(str)
+		if err != nil {
+			return
+		}
+		CfgFile = cfg
+
+		writeConfigFile("../config.txt", cfg)
 	case CMD_OUT_SIM_CHANGE:
 		fmt.Printf("CMD_OUT_SIM_CHANGE\n")
-		//TODO: Start algorithm
+
+		var cfg ModemPowerConfig
+		cfg.m1Pwr = data[2]
+		cfg.m1Sim = data[3]
+		cfg.m2Pwr = data[4]
+		cfg.m2Sim = data[5]
+
+		ProcModemStart(&cfg)
+	case CMD_OUT_SMS:
+		fmt.Printf("CMD_OUT_SMS\n")
+
+		var ptr uint8 = 2
+		var sms SmsMessage
+
+		sms.ModemNum = data[ptr]
+		ptr++
+		sms.MsgType = data[ptr]
+		ptr++
+		sms.Phone = string(data[ptr : ptr+PHONE_SIZE])
+		ptr = ptr + PHONE_SIZE
+		msgLen := data[1] - PHONE_SIZE - 2
+		sms.Message = string(data[ptr : ptr+msgLen])
+
+		//! sms may be cleared after end of function (make(sms, 1))
+		if sms.MsgType == 1 {
+			SmsList.PushBack(&sms)
+		}
 	default:
+		fmt.Println("Unknown command")
 	}
 }
 

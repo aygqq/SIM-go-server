@@ -1,8 +1,10 @@
 package control
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
+	"os/exec"
 	"reflect"
 	"strings"
 	"time"
@@ -13,6 +15,9 @@ var ModemSt [2]ModemStatus
 var ConnSt [2]ModemConnStatus
 var SystemSt SystemStatus
 var ModemPh ModemPhones
+
+var SmsList *list.List
+
 var modemPhReq ModemPhones
 var modemStReq ModemStatus
 
@@ -96,6 +101,13 @@ func Init() error {
 	return nil
 }
 
+func procShutdown() {
+	err := exec.Command("/bin/sh", "/app/shutdown.sh").Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func modemTurnOn(idx uint8, sim uint8) error {
 	var err error
 	if PowerSt.Modem[idx] == true {
@@ -137,10 +149,10 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	if err = waitForResponce(); err != nil {
 		return err
 	}
-	//? SimId should be changed on PCB by reading it from SIM?
-	if modemStReq.SimId != phFile.Bank[idx][sim].SimId {
-		fmt.Printf("SimId is wrong")
-		err = errors.New("SimId is wrong")
+	//? Imsi should be changed on PCB by reading it from SIM?
+	if modemStReq.Imsi != phFile.Bank[idx][sim].Imsi {
+		fmt.Printf("Imsi is wrong")
+		err = errors.New("Imsi is wrong")
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
 		return err

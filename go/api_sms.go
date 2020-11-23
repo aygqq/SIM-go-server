@@ -19,13 +19,23 @@ import (
 func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 	var res RespSmsResults
 	var resp RespSms
-	resp.Results = &res
-
-	res.Number = 0
-	res.Phone = "phone"
-	res.Message = "sms"
 
 	resp.Status = "OK"
+
+	if control.SmsList.Len() > 0 {
+		e := control.SmsList.Front()
+		sms, ok := e.Value.(*control.SmsMessage)
+		if !ok {
+			resp.Status = "EXECUTE_ERROR"
+		} else {
+			res.Number = sms.ModemNum
+			res.Phone = sms.Phone
+			res.Message = sms.Message
+			resp.Results = &res
+
+			control.SmsList.Remove(e)
+		}
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -40,15 +50,19 @@ func SetSendSms(w http.ResponseWriter, r *http.Request) {
 
 	idx, phone, sms, err := parseNumberPhoneSms(r)
 
+	var smsMes control.SmsMessage
+
 	if err == 0 {
-		control.SendSmsMessage(idx, phone, sms)
+		smsMes.ModemNum = idx
+		smsMes.Phone = phone
+		smsMes.Message = sms
+		control.SendSmsMessage(&smsMes)
 		status, ret := waitForResponce()
 		if ret == true {
 			res.Number = idx
 			res.Phone = phone
 			res.Message = sms
 			resp.Results = &res
-			//control.ModemSt[idx].SimNum = num
 		}
 		resp.Status = status
 	} else {

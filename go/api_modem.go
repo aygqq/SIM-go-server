@@ -118,7 +118,7 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 		res.Flymode = control.ModemSt[idx].Flymode
 		res.Imei = control.ModemSt[idx].Imei
 		res.Phone = control.ModemSt[idx].Phone
-		res.SimId = control.ModemSt[idx].SimId
+		res.Imsi = control.ModemSt[idx].Imsi
 		res.SimNum = control.ModemSt[idx].SimNum
 		resp.Status = "OK"
 	} else {

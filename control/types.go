@@ -34,10 +34,14 @@ const (
 	OBJECT_RELAY     = 4
 	OBJECT_SMS_MODEM = 5
 
-	IMEI_SIZE   = 16
+	IMEI_SIZE   = 15
 	PHONE_SIZE  = 26
-	SIMID_SIZE  = 20
+	IMSI_SIZE   = 15
 	OPERID_SIZE = 5
+
+	CONFIG_LEN  = 14
+	PHONES_ROWS = 12
+	PHONES_COLL = 3
 )
 
 type PowerStatus struct {
@@ -63,7 +67,7 @@ type ModemStatus struct {
 	// Number of current sim-card in bank
 	SimNum uint8
 	// ICCID of current sim-card
-	SimId string
+	Imsi string
 	// IMEI of modem
 	Imei string
 	// Current phone number
@@ -91,7 +95,7 @@ type ModemPhones struct {
 }
 
 type ModemSimParams struct {
-	SimId  string
+	Imsi   string
 	Imei   string
 	OperId string //!Is operId the same as operator?
 }
@@ -114,4 +118,11 @@ type ModemPowerConfig struct {
 	m1Sim uint8
 	m2Pwr uint8
 	m2Sim uint8
+}
+
+type SmsMessage struct {
+	ModemNum uint8
+	MsgType  uint8
+	Phone    string
+	Message  string
 }
