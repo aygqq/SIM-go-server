@@ -123,7 +123,7 @@ func Update(crc uint16, data []byte, table *Table) uint16 {
 		if table.params.RefIn {
 			d = ReverseByte(d)
 		}
-		crc = crc<<8 ^ table.data[byte(crc>>8)^d]
+		crc = crc>>8 ^ table.data[byte(crc&0xff)^d]
 	}
 	return crc
 }
@@ -140,7 +140,8 @@ func Complete(crc uint16, table *Table) uint16 {
 func Checksum(data []byte, table *Table) uint16 {
 	crc := Init(table)
 	crc = Update(crc, data, table)
-	return Complete(crc, table)
+	// return Complete(crc, table)
+	return crc
 }
 
 func ReverseByte(val byte) byte {

@@ -3,7 +3,9 @@ package control
 import (
 	"container/list"
 	"fmt"
+	"strings"
 	"time"
+	"unicode"
 
 	"../com"
 	"../crc16"
@@ -11,6 +13,7 @@ import (
 
 var table *crc16.Table
 
+// InitProtocol - Init function
 func InitProtocol() {
 	fmt.Printf("Init protocol\n")
 
@@ -33,8 +36,8 @@ func SendCommand(cmdType uint8, state bool) {
 	}
 
 	crc := crc16.Checksum(buf[:3], table)
-	buf[3] = uint8(crc >> 8)
-	buf[4] = uint8(crc & 0xff)
+	buf[3] = uint8(crc & 0xff)
+	buf[4] = uint8(crc >> 8)
 	buf[5] = byte('\n')
 
 	com.Send(buf[:])
@@ -49,8 +52,8 @@ func SendShort(cmdType uint8, data byte) {
 	buf[2] = data
 
 	crc := crc16.Checksum(buf[:3], table)
-	buf[3] = uint8(crc >> 8)
-	buf[4] = uint8(crc & 0xff)
+	buf[3] = uint8(crc & 0xff)
+	buf[4] = uint8(crc >> 8)
 	buf[5] = byte('\n')
 
 	com.Send(buf[:])
@@ -69,8 +72,8 @@ func SendData(cmdType uint8, data []byte) {
 	}
 
 	crc := crc16.Checksum(buf[0:len(buf)-3], table)
-	buf[2+dataLen] = uint8(crc >> 8)
-	buf[3+dataLen] = uint8(crc & 0xff)
+	buf[2+dataLen] = uint8(crc & 0xff)
+	buf[3+dataLen] = uint8(crc >> 8)
 	buf[4+dataLen] = byte('\n')
 
 	com.Send(buf[:])
@@ -216,161 +219,177 @@ func recieveHandler(data []byte) {
 		fmt.Printf("Bad crc16 %X\n", crc)
 		return
 	}
-	fmt.Printf("recv: ")
-	for i := 0; i < len(data)-1; i++ {
-		fmt.Printf("%02X ", data[i])
-	}
-	fmt.Printf("  \n")
-	//! Return here bacause of there are blocking by channel below
-	//return
+	// fmt.Printf("recv: ")
+	// for i := 0; i < len(data)-1; i++ {
+	// 	fmt.Printf("%02X ", data[i])
+	// }
+	// fmt.Printf("  \n")
+	// // ! Return here bacause of there are blocking by channel below
+	// return
 
 	switch data[0] {
 	case CMD_LOCK:
-		fmt.Printf("CMD_LOCK\n")
+		// fmt.Printf("CMD_LOCK\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_UNLOCK:
-		fmt.Printf("CMD_UNLOCK\n")
+		// fmt.Printf("CMD_UNLOCK\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_FLYMODE:
-		fmt.Printf("CMD_FLYMODE\n")
+		// fmt.Printf("CMD_FLYMODE\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_POWER:
-		fmt.Printf("CMD_POWER\n")
+		// fmt.Printf("CMD_POWER\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CHANGE_SIM:
-		fmt.Printf("CMD_CHANGE_SIM\n")
+		// fmt.Printf("CMD_CHANGE_SIM\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_PRINT:
-		fmt.Printf("CMD_LCD_PRINT\n")
+		// fmt.Printf("CMD_LCD_PRINT\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_BLINK:
-		fmt.Printf("CMD_LCD_BLINK\n")
+		// fmt.Printf("CMD_LCD_BLINK\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_IMEI:
-		fmt.Printf("CMD_SET_IMEI\n")
+		// fmt.Printf("CMD_SET_IMEI\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_CONFIG:
-		fmt.Printf("CMD_SET_CONFIG\n")
+		// fmt.Printf("CMD_SET_CONFIG\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CFG_ERROR:
-		fmt.Printf("CMD_CFG_ERROR\n")
+		// fmt.Printf("CMD_CFG_ERROR\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CTRL_ERROR:
-		fmt.Printf("CMD_CTRL_ERROR\n")
+		// fmt.Printf("CMD_CTRL_ERROR\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_WAITMODE:
-		fmt.Printf("CMD_PC_WAITMODE\n")
+		// fmt.Printf("CMD_PC_WAITMODE\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_SHUTDOWN:
-		fmt.Printf("CMD_PC_SHUTDOWN\n")
+		// fmt.Printf("CMD_PC_SHUTDOWN\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_READY:
-		fmt.Printf("CMD_PC_READY\n")
+		// fmt.Printf("CMD_PC_READY\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_NEW_PHONES:
-		fmt.Printf("CMD_NEW_PHONES\n")
+		// fmt.Printf("CMD_NEW_PHONES\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SEND_SMS:
-		fmt.Printf("CMD_SEND_SMS\n")
+		// fmt.Printf("CMD_SEND_SMS\n")
 
-		if FlagWaitResp == true {
-			HttpReqChan <- data[2]
-			FlagWaitResp = false
-		} else {
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- data[2]
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
 			ControlReqChan <- data[2]
 		}
 	case CMD_REQ_MODEM_INFO:
-		fmt.Printf("CMD_REQ_MODEM_INFO\n")
+		// fmt.Printf("CMD_REQ_MODEM_INFO\n")
 
 		var st ModemStatus
 		var ptr int = 2
@@ -385,10 +404,10 @@ func recieveHandler(data []byte) {
 		st.SimNum = data[ptr]
 		ptr++
 
-		var imsi = make([]byte, IMSI_SIZE)
-		copy(imsi, data[ptr:ptr+IMSI_SIZE])
-		st.Imsi = string(imsi)
-		ptr += IMSI_SIZE
+		var iccid = make([]byte, ICCID_SIZE)
+		copy(iccid, data[ptr:ptr+ICCID_SIZE])
+		st.Iccid = string(iccid)
+		ptr += ICCID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
@@ -401,41 +420,50 @@ func recieveHandler(data []byte) {
 		ptr += IMEI_SIZE
 
 		modemStReq = st
-
-		ControlReqChan <- 1
+		if FlagControlWaitResp == true {
+			ControlReqChan <- 1
+		}
 	case CMD_REQ_PHONES:
-		fmt.Printf("CMD_REQ_PHONES\n")
+		// fmt.Printf("CMD_REQ_PHONES\n")
 
 		var ph ModemPhones
 		var ptr int = 2
 		for i := 0; i < 4; i++ {
 			var phone = make([]byte, PHONE_SIZE)
 			copy(phone, data[ptr:ptr+PHONE_SIZE])
-			ph.PhonesOut[i] = string(phone)
+			ph.PhonesOut[i] = strings.TrimRightFunc(string(phone), func(r rune) bool {
+				return !unicode.IsPunct(r) && !unicode.IsNumber(r)
+			})
 			ptr += PHONE_SIZE
 		}
 		for i := 0; i < 4; i++ {
 			var phone = make([]byte, PHONE_SIZE)
 			copy(phone, data[ptr:ptr+PHONE_SIZE])
-			ph.PhonesIn[i] = string(phone)
+			ph.PhonesIn[i] = strings.TrimRightFunc(string(phone), func(r rune) bool {
+				return !unicode.IsPunct(r) && !unicode.IsNumber(r)
+			})
 			ptr += PHONE_SIZE
 		}
 
 		modemPhReq = ph
-		ControlReqChan <- 1
+		if FlagControlWaitResp == true {
+			ControlReqChan <- 1
+		}
 	case CMD_REQ_REASON:
-		fmt.Printf("CMD_REQ_REASON\n")
+		// fmt.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
 		SystemSt.ReasonBuf = string(data[2 : 2+len])
 		//copy(SystemSt.ReasonBuf, data[2:2+len])
-		ControlReqChan <- 1
+		if FlagControlWaitResp == true {
+			ControlReqChan <- 1
+		}
 	case CMD_OUT_SHUTDOWN:
-		fmt.Printf("CMD_OUT_SHUTDOWN\n")
+		// fmt.Printf("CMD_OUT_SHUTDOWN\n")
 
-		procShutdown()
+		go procShutdown()
 	case CMD_OUT_SAVE_STATE:
-		fmt.Printf("CMD_OUT_SAVE_STATE\n")
+		// fmt.Printf("CMD_OUT_SAVE_STATE\n")
 
 		str := string(data[2 : 2+CONFIG_LEN])
 		cfg, err := StrToCfg(str)
@@ -444,9 +472,9 @@ func recieveHandler(data []byte) {
 		}
 		CfgFile = cfg
 
-		writeConfigFile("../config.txt", cfg)
+		go writeConfigFile("../config.txt", cfg)
 	case CMD_OUT_SIM_CHANGE:
-		fmt.Printf("CMD_OUT_SIM_CHANGE\n")
+		// fmt.Printf("CMD_OUT_SIM_CHANGE\n")
 
 		var cfg ModemPowerConfig
 		cfg.m1Pwr = data[2]
@@ -454,9 +482,9 @@ func recieveHandler(data []byte) {
 		cfg.m2Pwr = data[4]
 		cfg.m2Sim = data[5]
 
-		ProcModemStart(&cfg)
+		go ProcModemStart(&cfg)
 	case CMD_OUT_SMS:
-		fmt.Printf("CMD_OUT_SMS\n")
+		// fmt.Printf("CMD_OUT_SMS\n")
 
 		var ptr uint8 = 2
 		var sms SmsMessage

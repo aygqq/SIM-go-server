@@ -26,7 +26,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	if err == 0 {
 		res.Number = idx
 		res.Operator = control.ConnSt[idx].Operator
-		res.BaseId = control.ConnSt[idx].BaseId
+		res.BaseID = control.ConnSt[idx].BaseID
 		res.Signal = control.ConnSt[idx].Signal
 		resp.Status = "OK"
 	} else {
@@ -118,7 +118,7 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 		res.Flymode = control.ModemSt[idx].Flymode
 		res.Imei = control.ModemSt[idx].Imei
 		res.Phone = control.ModemSt[idx].Phone
-		res.Imsi = control.ModemSt[idx].Imsi
+		res.Iccid = control.ModemSt[idx].Iccid
 		res.SimNum = control.ModemSt[idx].SimNum
 		resp.Status = "OK"
 	} else {

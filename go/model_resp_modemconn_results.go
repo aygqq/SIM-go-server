@@ -14,7 +14,7 @@ type RespModemconnResults struct {
 	// Current operator
 	Operator string `json:"operator,omitempty"`
 	// ID of current base station
-	BaseId string `json:"base_id,omitempty"`
+	BaseID string `json:"base_id,omitempty"`
 	// Signal level
 	Signal string `json:"signal,omitempty"`
 }

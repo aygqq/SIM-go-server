@@ -31,6 +31,10 @@ func main() {
 
 	time.Sleep(time.Second)
 	control.InitProtocol()
+	err := control.ProcStart()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.Printf("Server started")
 

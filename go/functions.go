@@ -111,9 +111,9 @@ func waitForResponce() (string, bool) {
 	var ret bool
 	var status string
 
-	control.FlagWaitResp = true
+	control.FlagHTTPWaitResp = true
 	select {
-	case read := <-control.HttpReqChan:
+	case read := <-control.HTTPReqChan:
 		//! COM now in echo mode, so that "read" value doesn't matter
 		// if read == 1 {
 		// 	status = "OK"

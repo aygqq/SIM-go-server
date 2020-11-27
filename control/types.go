@@ -35,8 +35,8 @@ const (
 	OBJECT_SMS_MODEM = 5
 
 	IMEI_SIZE   = 15
-	PHONE_SIZE  = 26
-	IMSI_SIZE   = 15
+	PHONE_SIZE  = 16
+	ICCID_SIZE  = 18
 	OPERID_SIZE = 5
 
 	CONFIG_LEN  = 14
@@ -67,7 +67,7 @@ type ModemStatus struct {
 	// Number of current sim-card in bank
 	SimNum uint8
 	// ICCID of current sim-card
-	Imsi string
+	Iccid string
 	// IMEI of modem
 	Imei string
 	// Current phone number
@@ -78,7 +78,7 @@ type ModemConnStatus struct {
 	// Current operator
 	Operator string //!Is operId the same as operator?
 	// ID of current base station
-	BaseId string
+	BaseID string
 	// Signal level
 	Signal string
 }
@@ -95,9 +95,9 @@ type ModemPhones struct {
 }
 
 type ModemSimParams struct {
-	Imsi   string
+	Iccid  string
 	Imei   string
-	OperId string //!Is operId the same as operator?
+	OperID string //!Is operId the same as operator?
 }
 
 type FileConfig struct {

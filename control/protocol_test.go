@@ -14,7 +14,7 @@ var flag bool = false
 func Test(t *testing.T) {
 	fmt.Printf("Init protocol\n")
 
-	com.Init(Callback_test)
+	com.Init(callbackTest)
 
 	//! TODO: Table must be simmilar with PCB's table
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
@@ -67,7 +67,7 @@ func Test(t *testing.T) {
 	}
 }
 
-func Callback_test(data []byte) {
+func callbackTest(data []byte) {
 	crc := crc16.Checksum(data[:len(data)-1], table)
 
 	var crcIn uint16

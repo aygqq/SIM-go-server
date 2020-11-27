@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"log"
 	"syscall"
-	"time"
 
 	"github.com/schleibinger/sio"
 )
@@ -12,24 +11,22 @@ import (
 var port *sio.Port
 var callback func([]byte)
 
+// Init function
 func Init(f func([]byte)) {
 	// устанавливаем соединение
-	porter, err := sio.Open("/dev/ttyS10", syscall.B9600)
+	porter, err := sio.Open("/dev/ttyACM0", syscall.B115200)
 	if err != nil {
 		log.Fatal(err)
 	}
 	port = porter
 	callback = f
 
-	// отправляем данные
-	_, err = port.Write([]byte("This test string is sended to COM and received back!\n"))
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Send([]byte("Test string\n"))
 
 	go comRecv()
 }
 
+// Send - send data to COM
 func Send(data []byte) {
 	var err error
 	// отправляем данные
@@ -37,31 +34,19 @@ func Send(data []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func comSend() {
-	var err error
-	for i := 0; ; i++ {
-		time.Sleep(time.Second)
-
-		// отправляем данные
-		_, err = port.Write([]byte("test\n"))
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	log.Printf("Com send: %d", data[0])
 }
 
 func comRecv() {
 	reader := bufio.NewReader(port)
-	for i := 0; ; i++ {
+	for {
 		//time.Sleep(time.Second)
 		// получаем данные
 		reply, err := reader.ReadBytes('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
-		//log.Printf("recieved: %q", reply)
+		log.Printf("Com recv: %d", reply[0])
 		callback(reply)
 	}
 }
