@@ -26,7 +26,7 @@ func InitProtocol() {
 }
 
 func SendCommand(cmdType uint8, state bool) {
-	fmt.Printf("SendCommand\n")
+	// fmt.Printf("SendCommand\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
@@ -44,7 +44,7 @@ func SendCommand(cmdType uint8, state bool) {
 }
 
 func SendShort(cmdType uint8, data byte) {
-	fmt.Printf("SendShort\n")
+	// fmt.Printf("SendShort\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
@@ -60,7 +60,7 @@ func SendShort(cmdType uint8, data byte) {
 }
 
 func SendData(cmdType uint8, data []byte) {
-	fmt.Printf("SendData\n")
+	// fmt.Printf("SendData\n")
 	var dataLen = len(data)
 
 	var buf = make([]byte, dataLen+5)
@@ -250,33 +250,69 @@ func recieveHandler(data []byte) {
 		}
 	case CMD_FLYMODE:
 		// fmt.Printf("CMD_FLYMODE\n")
+		var state bool
+		idx := data[2]
+		if data[3] == 0 {
+			state = false
+		} else {
+			state = true
+		}
+
+		ModemSt[idx].Flymode = state
 
 		if FlagHTTPWaitResp == true {
-			HTTPReqChan <- data[2]
+			HTTPReqChan <- 1
 			FlagHTTPWaitResp = false
 		}
 		if FlagControlWaitResp == true {
-			ControlReqChan <- data[2]
+			ControlReqChan <- 1
 		}
 	case CMD_POWER:
 		// fmt.Printf("CMD_POWER\n")
+		var state bool
+		obj := data[2]
+		idx := data[3]
+		if data[4] == 0 {
+			state = false
+		} else {
+			state = true
+		}
+
+		switch obj {
+		case OBJECT_MODEM:
+			PowerSt.Modem[idx] = state
+		case OBJECT_WIFI:
+			PowerSt.Wifi = state
+		case OBJECT_RELAY:
+			PowerSt.Relay[idx] = state
+		}
 
 		if FlagHTTPWaitResp == true {
-			HTTPReqChan <- data[2]
+			HTTPReqChan <- 1
 			FlagHTTPWaitResp = false
 		}
 		if FlagControlWaitResp == true {
-			ControlReqChan <- data[2]
+			ControlReqChan <- 1
 		}
 	case CMD_CHANGE_SIM:
 		// fmt.Printf("CMD_CHANGE_SIM\n")
+		idx := data[2]
+		sim := data[3]
+		var res uint8
+
+		if sim > 0 {
+			ModemSt[idx].SimNum = sim
+			res = 1
+		} else {
+			res = 0
+		}
 
 		if FlagHTTPWaitResp == true {
-			HTTPReqChan <- data[2]
+			HTTPReqChan <- res
 			FlagHTTPWaitResp = false
 		}
 		if FlagControlWaitResp == true {
-			ControlReqChan <- data[2]
+			ControlReqChan <- res
 		}
 	case CMD_LCD_PRINT:
 		// fmt.Printf("CMD_LCD_PRINT\n")
@@ -465,14 +501,14 @@ func recieveHandler(data []byte) {
 	case CMD_OUT_SAVE_STATE:
 		// fmt.Printf("CMD_OUT_SAVE_STATE\n")
 
-		str := string(data[2 : 2+CONFIG_LEN])
-		cfg, err := StrToCfg(str)
+		cfg, err := BytesToCfg(data[2 : 2+CONFIG_LEN])
 		if err != nil {
+			fmt.Printf("Error cfg recv %q\n", err)
 			return
 		}
 		CfgFile = cfg
 
-		go writeConfigFile("../config.txt", cfg)
+		go writeConfigFile("config.txt", cfg)
 	case CMD_OUT_SIM_CHANGE:
 		// fmt.Printf("CMD_OUT_SIM_CHANGE\n")
 

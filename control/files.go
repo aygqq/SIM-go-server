@@ -300,15 +300,68 @@ func StrToCfg(str string) (FileConfig, error) {
 
 	data := []byte(str)
 
-	if len(data) != 14 {
+	if len(data) != CONFIG_LEN {
 		return cfg, errors.New("Config file format error")
 	}
 
-	for i := 0; i < 14; i++ {
+	for i := 0; i < CONFIG_LEN; i++ {
 		if data[i] < '0' || data[i] > '9' {
 			return cfg, errors.New("Config file format error")
 		}
 		data[i] = data[i] - '0'
+	}
+
+	if data[0] == 1 {
+		cfg.Power.PowerStat = true
+	}
+	cfg.Power.BatLevel = 10*uint8(data[1]) + uint8(data[2])
+
+	if data[3] == 1 {
+		cfg.Power.Modem[0] = true
+	}
+	cfg.SimNum[0] = data[4]
+	if data[5] == 1 {
+		cfg.Power.Modem[1] = true
+	}
+	cfg.SimNum[1] = data[6]
+
+	if data[7] == 1 {
+		cfg.Power.Pc = true
+	}
+	if data[8] == 1 {
+		cfg.Power.Wifi = true
+	}
+	if data[9] == 1 {
+		cfg.Power.Relay[0] = true
+	}
+	if data[10] == 1 {
+		cfg.Power.Relay[1] = true
+	}
+
+	if data[11] == 1 {
+		cfg.ConfigErr = true
+	}
+	if data[12] == 1 {
+		cfg.StateErr = true
+	}
+	if data[13] == 1 {
+		cfg.ConnectErr = true
+	}
+
+	return cfg, nil
+}
+
+func BytesToCfg(data []byte) (FileConfig, error) {
+	var cfg FileConfig
+
+	if len(data) != CONFIG_LEN {
+		return cfg, errors.New("Config file format error")
+	}
+
+	for i := 0; i < CONFIG_LEN; i++ {
+		if data[i] < 0 || data[i] > 9 {
+			return cfg, errors.New("Config format error")
+		}
 	}
 
 	if data[0] == 1 {

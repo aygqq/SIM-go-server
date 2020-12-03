@@ -55,7 +55,7 @@ func waitForResponce() error {
 		if read == 0 {
 			err = errors.New("Wrong response received")
 		}
-		log.Printf("Chanel recv %d\n", read)
+		// log.Printf("Chanel recv %d\n", read)
 	case <-time.After(2 * time.Second):
 		log.Println("No response received")
 		err = errors.New("No response received")
@@ -97,7 +97,7 @@ func ProcStart() error {
 			return err
 		}
 		if modemPhReq == ph.Phones {
-			fmt.Println("GOOOOOOOD")
+			fmt.Println("Phones are equal")
 		} else {
 			fmt.Println("Phones recv\n", modemPhReq)
 			fmt.Println("Phones file\n", ph.Phones)
@@ -117,6 +117,7 @@ func ProcStart() error {
 	if err = waitForResponce(); err != nil {
 		return err
 	}
+	fmt.Printf("Reason buf is %s\n", SystemSt.ReasonBuf)
 	if strings.HasPrefix(SystemSt.ReasonBuf, "Button") {
 		ProcButtonStart()
 	} else if strings.HasPrefix(SystemSt.ReasonBuf, "Sms") {
@@ -198,7 +199,9 @@ func modemTurnOn(idx uint8, sim uint8) error {
 		waitForResponce()
 		return err
 	}
+	fmt.Printf("\tIccid is %s\n", modemStReq.Iccid)
 	if modemStReq.Imei != phFile.Bank[idx][sim-1].Imei {
+		time.Sleep(5 * time.Second)
 		SendSetImei(idx, phFile.Bank[idx][sim-1].Imei)
 		if err = waitForResponce(); err != nil {
 			return err
@@ -217,6 +220,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 			return err
 		}
 	}
+	fmt.Printf("\tIMEI is %s\n", modemStReq.Imei)
 
 	fmt.Println("\tFlightmode off")
 	SendFlightmode(idx, false)
@@ -240,7 +244,7 @@ func ProcSetConfigStart() {
 
 // ProcLastConfigStart - Work on last config
 func ProcLastConfigStart() error {
-	cfg, err := readConfigFile("../config.txt")
+	cfg, err := readConfigFile("config.txt")
 	if err != nil {
 		fmt.Printf("Failed to read file: %q\n", err)
 		SendCommand(CMD_CTRL_ERROR, true)
@@ -263,12 +267,16 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 		err = modemTurnOn(1, cfg.m2Sim)
 		if err != nil {
 			fmt.Printf("Failed to turn on modem 2: %q\n", err)
+			SendCommand(CMD_CFG_ERROR, true)
+			waitForResponce()
 		}
 	}
 	if cfg.m1Pwr == 1 {
 		err = modemTurnOn(0, cfg.m1Sim)
 		if err != nil {
 			fmt.Printf("Failed to turn on modem 1: %q\n", err)
+			SendCommand(CMD_CFG_ERROR, true)
+			waitForResponce()
 		}
 	}
 
