@@ -12,7 +12,7 @@ import (
 var flag bool = false
 
 func Test(t *testing.T) {
-	fmt.Printf("Init protocol\n")
+	log.Printf("Init protocol\n")
 
 	com.Init(callbackTest)
 
@@ -74,17 +74,17 @@ func callbackTest(data []byte) {
 	crcIn = uint16(data[len(data)-3]) << 8
 	crcIn += uint16(data[len(data)-2])
 
-	fmt.Printf("recv: ")
+	log.Printf("recv: ")
 	for i := 0; i < len(data)-1; i++ {
-		fmt.Printf("%02X ", data[i])
+		log.Printf("%02X ", data[i])
 	}
-	fmt.Printf("  \n")
+	log.Printf("  \n")
 
 	if crc != 0 {
-		fmt.Printf("Bad crc16 %X %X\n", crc, crcIn)
+		log.Printf("Bad crc16 %X %X\n", crc, crcIn)
 		return
 	}
-	fmt.Printf("Good crc16 %X %X\n", crc, crcIn)
+	log.Printf("Good crc16 %X %X\n", crc, crcIn)
 	flag = true
 	return
 }

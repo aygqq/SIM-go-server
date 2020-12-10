@@ -57,7 +57,7 @@ func SetSendSms(w http.ResponseWriter, r *http.Request) {
 		smsMes.Phone = phone
 		smsMes.Message = sms
 		control.SendSmsMessage(&smsMes)
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(21)
 		if ret == true {
 			res.Number = idx
 			res.Phone = phone
@@ -88,7 +88,7 @@ func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 		} else {
 			control.SendShort(control.CMD_UNLOCK, 1)
 		}
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(1)
 		if ret == true {
 			res.Number = 0
 			res.State = state

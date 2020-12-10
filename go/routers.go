@@ -167,10 +167,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"SetPwrPC",
+		"SetDownPwrPC",
 		strings.ToUpper("Put"),
 		"/power/pc",
-		SetPwrPC,
+		SetDownPwrPC,
 	},
 
 	Route{

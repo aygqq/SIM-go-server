@@ -1,7 +1,7 @@
 package swagger
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -20,6 +20,7 @@ func parseNumberState(r *http.Request) (uint8, bool, uint8) {
 			if idx > 2 || idx < 1 {
 				err = 1
 			}
+			idx--
 		} else if k == "state" {
 			if v[0] == "true" {
 				state = true
@@ -46,6 +47,7 @@ func parseNumberImei(r *http.Request) (uint8, string, uint8) {
 			if idx > 2 || idx < 1 {
 				err = 1
 			}
+			idx--
 		} else if k == "imei" {
 			imei = v[0]
 			if len(imei) != control.IMEI_SIZE {
@@ -69,6 +71,7 @@ func parseNumberSim(r *http.Request) (uint8, uint8, uint8) {
 			if idx > 2 || idx < 1 {
 				err = 1
 			}
+			idx--
 		} else if k == "sim_num" {
 			tmp := []byte(v[0])
 			num = tmp[0] - '0'
@@ -94,6 +97,7 @@ func parseNumberPhoneSms(r *http.Request) (uint8, string, string, uint8) {
 			if idx > 2 || idx < 1 {
 				err = 1
 			}
+			idx--
 		} else if k == "phone" {
 			phone = v[0]
 			if len(phone) > control.PHONE_SIZE {
@@ -107,7 +111,7 @@ func parseNumberPhoneSms(r *http.Request) (uint8, string, string, uint8) {
 	return idx, phone, sms, err
 }
 
-func waitForResponce() (string, bool) {
+func waitForResponce(secs int) (string, bool) {
 	var ret bool
 	var status string
 
@@ -122,13 +126,14 @@ func waitForResponce() (string, bool) {
 		// 	status = "EXECUTE_ERROR"
 		// 	ret = false
 		// }
-		fmt.Printf("Chanel recv %d\n", read)
+		log.Printf("Chanel recv %d\n", read)
 		status = "OK"
 		ret = true
-	case <-time.After(time.Second):
-		fmt.Println("No response received")
+	case <-time.After(time.Duration(secs) * time.Second):
+		log.Println("No response received")
 		status = "EXECUTE_ERROR"
 		ret = false
 	}
+	control.FlagHTTPWaitResp = false
 	return status, ret
 }

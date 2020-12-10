@@ -3,7 +3,6 @@ package control
 import (
 	"container/list"
 	"errors"
-	"fmt"
 	"log"
 	"os/exec"
 	"reflect"
@@ -70,13 +69,13 @@ func waitForResponce() error {
 func ProcStart() error {
 	ph, err := readPhonesFile("phones.csv")
 	if err != nil {
-		fmt.Printf("Failed to read file: %q\n", err)
+		log.Printf("Failed to read file: %q\n", err)
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
 		return err
 	}
 
-	fmt.Println("\tFlightmode on")
+	log.Println("\tFlightmode on")
 	SendFlightmode(0, true)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -97,10 +96,10 @@ func ProcStart() error {
 			return err
 		}
 		if modemPhReq == ph.Phones {
-			fmt.Println("Phones are equal")
+			log.Println("Phones are equal")
 		} else {
-			fmt.Println("Phones recv\n", modemPhReq)
-			fmt.Println("Phones file\n", ph.Phones)
+			log.Println("Phones recv\n", modemPhReq)
+			log.Println("Phones file\n", ph.Phones)
 			err = errors.New("Phones file double check failed")
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
@@ -117,7 +116,7 @@ func ProcStart() error {
 	if err = waitForResponce(); err != nil {
 		return err
 	}
-	fmt.Printf("Reason buf is %s\n", SystemSt.ReasonBuf)
+	log.Printf("Reason buf is %s\n", SystemSt.ReasonBuf)
 	if strings.HasPrefix(SystemSt.ReasonBuf, "Button") {
 		ProcButtonStart()
 	} else if strings.HasPrefix(SystemSt.ReasonBuf, "Sms") {
@@ -140,17 +139,17 @@ func ProcStart() error {
 }
 
 func procShutdown() {
-	err := exec.Command("/bin/sh", "/app/shutdown.sh").Run()
+	err := exec.Command("/bin/sh", "shutdown.sh").Run()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }
 
 func modemTurnOn(idx uint8, sim uint8) error {
 	var err error
-	fmt.Printf("Modem %d turn on\n", idx+1)
+	log.Printf("Modem %d turn on\n", idx+1)
 	if PowerSt.Modem[idx] == true {
-		fmt.Println("\tPower off")
+		log.Println("\tPower off")
 		SendObjectPwr(OBJECT_MODEM, idx, false)
 		if err = waitForResponce(); err != nil {
 			return err
@@ -158,26 +157,26 @@ func modemTurnOn(idx uint8, sim uint8) error {
 		time.Sleep(10 * time.Second)
 	}
 
-	fmt.Println("\tPower on")
+	log.Println("\tPower on")
 	SendObjectPwr(OBJECT_MODEM, idx, true)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 	time.Sleep(1 * time.Second)
 
-	fmt.Println("\tFlightmode on")
+	log.Println("\tFlightmode on")
 	SendFlightmode(idx, true)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
-	fmt.Println("\tChange sim")
+	log.Println("\tChange sim")
 	SendDoubleByte(CMD_CHANGE_SIM, idx, sim)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
-	fmt.Println("\tLCD blink")
+	log.Println("\tLCD blink")
 	SendDoubleByte(CMD_LCD_BLINK, idx, 0)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -186,20 +185,20 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	//? How to wait for modem loaded?
 	time.Sleep(35 * time.Second)
 
-	fmt.Println("\tReq modem info")
+	log.Println("\tReq modem info")
 	SendShort(CMD_REQ_MODEM_INFO, idx)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 	//? Iccid should be changed on PCB by reading it from SIM?
 	if modemStReq.Iccid != phFile.Bank[idx][sim-1].Iccid {
-		fmt.Printf("\tIccid is wrong %s %s\n", modemStReq.Iccid, phFile.Bank[idx][sim-1].Iccid)
+		log.Printf("\tIccid is wrong %s %s\n", modemStReq.Iccid, phFile.Bank[idx][sim-1].Iccid)
 		err = errors.New("Iccid is wrong")
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
 		return err
 	}
-	fmt.Printf("\tIccid is %s\n", modemStReq.Iccid)
+	log.Printf("\tIccid is %s\n", modemStReq.Iccid)
 	if modemStReq.Imei != phFile.Bank[idx][sim-1].Imei {
 		time.Sleep(5 * time.Second)
 		SendSetImei(idx, phFile.Bank[idx][sim-1].Imei)
@@ -213,21 +212,21 @@ func modemTurnOn(idx uint8, sim uint8) error {
 		}
 
 		if modemStReq.Imei != phFile.Bank[idx][sim-1].Imei {
-			fmt.Printf("\tCan not set IMEI %s %s\n", modemStReq.Imei, phFile.Bank[idx][sim-1].Imei)
+			log.Printf("\tCan not set IMEI %s %s\n", modemStReq.Imei, phFile.Bank[idx][sim-1].Imei)
 			err = errors.New("Can not set IMEI")
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
 			return err
 		}
 	}
-	fmt.Printf("\tIMEI is %s\n", modemStReq.Imei)
+	log.Printf("\tIMEI is %s\n", modemStReq.Imei)
 
-	fmt.Println("\tFlightmode off")
+	log.Println("\tFlightmode off")
 	SendFlightmode(idx, false)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
-	fmt.Printf("Modem %d turn on (END)\n", idx+1)
+	log.Printf("Modem %d turn on (END)\n", idx+1)
 
 	return nil
 }
@@ -246,7 +245,7 @@ func ProcSetConfigStart() {
 func ProcLastConfigStart() error {
 	cfg, err := readConfigFile("config.txt")
 	if err != nil {
-		fmt.Printf("Failed to read file: %q\n", err)
+		log.Printf("Failed to read file: %q\n", err)
 		SendCommand(CMD_CTRL_ERROR, true)
 		waitForResponce()
 		SendCommand(CMD_PC_SHUTDOWN, true)
@@ -266,7 +265,14 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 	if cfg.m2Pwr == 1 {
 		err = modemTurnOn(1, cfg.m2Sim)
 		if err != nil {
-			fmt.Printf("Failed to turn on modem 2: %q\n", err)
+			log.Printf("Failed to turn on modem 2: %q\n", err)
+
+			ModemSt[1].Iccid = ""
+			ModemSt[1].Imei = ""
+			ModemSt[1].Flymode = false
+			ModemSt[1].SimNum = 0
+			ModemSt[1].Phone = ""
+
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
 		}
@@ -274,7 +280,14 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 	if cfg.m1Pwr == 1 {
 		err = modemTurnOn(0, cfg.m1Sim)
 		if err != nil {
-			fmt.Printf("Failed to turn on modem 1: %q\n", err)
+			log.Printf("Failed to turn on modem 1: %q\n", err)
+
+			ModemSt[0].Iccid = ""
+			ModemSt[0].Imei = ""
+			ModemSt[0].Flymode = false
+			ModemSt[0].SimNum = 0
+			ModemSt[0].Phone = ""
+
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
 		}
@@ -282,7 +295,7 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 
 	SendShort(CMD_UNLOCK, 1)
 	if err = waitForResponce(); err != nil {
-		fmt.Printf("Cmd unlock: %q\n", err)
+		log.Printf("Cmd unlock: %q\n", err)
 		return
 	}
 }

@@ -42,7 +42,7 @@ func comRecv() {
 	for {
 		//time.Sleep(time.Second)
 		// получаем данные
-		reply, err := reader.ReadBytes('\n')
+		reply, err := reader.ReadBytes(0xFE)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -2,7 +2,7 @@ package control
 
 import (
 	"container/list"
-	"fmt"
+	"log"
 	"strings"
 	"time"
 	"unicode"
@@ -15,7 +15,7 @@ var table *crc16.Table
 
 // InitProtocol - Init function
 func InitProtocol() {
-	fmt.Printf("Init protocol\n")
+	log.Printf("Init protocol\n")
 
 	com.Init(recieveHandler)
 
@@ -26,7 +26,7 @@ func InitProtocol() {
 }
 
 func SendCommand(cmdType uint8, state bool) {
-	// fmt.Printf("SendCommand\n")
+	// log.Printf("SendCommand\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
@@ -44,7 +44,7 @@ func SendCommand(cmdType uint8, state bool) {
 }
 
 func SendShort(cmdType uint8, data byte) {
-	// fmt.Printf("SendShort\n")
+	// log.Printf("SendShort\n")
 	var buf [6]byte
 
 	buf[0] = cmdType
@@ -60,7 +60,7 @@ func SendShort(cmdType uint8, data byte) {
 }
 
 func SendData(cmdType uint8, data []byte) {
-	// fmt.Printf("SendData\n")
+	// log.Printf("SendData\n")
 	var dataLen = len(data)
 
 	var buf = make([]byte, dataLen+5)
@@ -204,32 +204,32 @@ func SendSmsMessage(sms *SmsMessage) {
 	// Message
 	copy(buf[ptr:], sms.Message)
 
-	SendData(CMD_NEW_PHONES, buf[:])
+	SendData(CMD_SEND_SMS, buf[:])
 }
 
 func recieveHandler(data []byte) {
 	if int(data[1]) != (len(data) - 5) {
-		fmt.Printf("Wrong length %d (real %d)\n", data[1], (len(data) - 4))
+		log.Printf("Wrong length %d (real %d)\n", data[1], (len(data) - 4))
 		return
 	}
 
 	crc := crc16.Checksum(data[:len(data)-1], table)
 
 	if crc != 0 {
-		fmt.Printf("Bad crc16 %X\n", crc)
+		log.Printf("Bad crc16 %X\n", crc)
 		return
 	}
-	// fmt.Printf("recv: ")
+	// log.Printf("recv: ")
 	// for i := 0; i < len(data)-1; i++ {
-	// 	fmt.Printf("%02X ", data[i])
+	// 	log.Printf("%02X ", data[i])
 	// }
-	// fmt.Printf("  \n")
+	// log.Printf("  \n")
 	// // ! Return here bacause of there are blocking by channel below
 	// return
 
 	switch data[0] {
 	case CMD_LOCK:
-		// fmt.Printf("CMD_LOCK\n")
+		// log.Printf("CMD_LOCK\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -239,7 +239,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_UNLOCK:
-		// fmt.Printf("CMD_UNLOCK\n")
+		// log.Printf("CMD_UNLOCK\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -249,7 +249,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_FLYMODE:
-		// fmt.Printf("CMD_FLYMODE\n")
+		// log.Printf("CMD_FLYMODE\n")
 		var state bool
 		idx := data[2]
 		if data[3] == 0 {
@@ -268,7 +268,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- 1
 		}
 	case CMD_POWER:
-		// fmt.Printf("CMD_POWER\n")
+		// log.Printf("CMD_POWER\n")
 		var state bool
 		obj := data[2]
 		idx := data[3]
@@ -295,7 +295,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- 1
 		}
 	case CMD_CHANGE_SIM:
-		// fmt.Printf("CMD_CHANGE_SIM\n")
+		// log.Printf("CMD_CHANGE_SIM\n")
 		idx := data[2]
 		sim := data[3]
 		var res uint8
@@ -315,7 +315,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- res
 		}
 	case CMD_LCD_PRINT:
-		// fmt.Printf("CMD_LCD_PRINT\n")
+		// log.Printf("CMD_LCD_PRINT\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -325,7 +325,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_LCD_BLINK:
-		// fmt.Printf("CMD_LCD_BLINK\n")
+		// log.Printf("CMD_LCD_BLINK\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -335,7 +335,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_IMEI:
-		// fmt.Printf("CMD_SET_IMEI\n")
+		// log.Printf("CMD_SET_IMEI\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -345,17 +345,63 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SET_CONFIG:
-		// fmt.Printf("CMD_SET_CONFIG\n")
+		// log.Printf("CMD_SET_CONFIG\n")
+
+		cfg, err := BytesToCfg(data[2 : 2+CONFIG_LEN])
+		if err != nil {
+			log.Printf("Error cfg recv %q\n", err)
+			break
+		}
+
+		PowerSt.BatLevel = cfg.Power.BatLevel
+		PowerSt.PowerStat = cfg.Power.PowerStat
+		PowerSt.Pc = cfg.Power.Pc
+		PowerSt.Wifi = cfg.Power.Wifi
+		PowerSt.Relay[0] = cfg.Power.Relay[0]
+		PowerSt.Relay[1] = cfg.Power.Relay[1]
+		PowerSt.Modem[0] = cfg.Power.Modem[0]
+		PowerSt.Modem[1] = cfg.Power.Modem[1]
+
+		ModemSt[0].SimNum = cfg.SimNum[0]
+		ModemSt[1].SimNum = cfg.SimNum[1]
 
 		if FlagHTTPWaitResp == true {
-			HTTPReqChan <- data[2]
+			HTTPReqChan <- 1
 			FlagHTTPWaitResp = false
 		}
 		if FlagControlWaitResp == true {
-			ControlReqChan <- data[2]
+			ControlReqChan <- 1
+		}
+	case CMD_GET_CONFIG:
+		// log.Printf("CMD_GET_CONFIG\n")
+
+		cfg, err := BytesToCfg(data[2 : 2+CONFIG_LEN])
+		if err != nil {
+			log.Printf("Error cfg recv %q\n", err)
+			break
+		}
+
+		PowerSt.BatLevel = cfg.Power.BatLevel
+		PowerSt.PowerStat = cfg.Power.PowerStat
+		PowerSt.Pc = cfg.Power.Pc
+		PowerSt.Wifi = cfg.Power.Wifi
+		PowerSt.Relay[0] = cfg.Power.Relay[0]
+		PowerSt.Relay[1] = cfg.Power.Relay[1]
+		PowerSt.Modem[0] = cfg.Power.Modem[0]
+		PowerSt.Modem[1] = cfg.Power.Modem[1]
+
+		ModemSt[0].SimNum = cfg.SimNum[0]
+		ModemSt[1].SimNum = cfg.SimNum[1]
+
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- 1
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
+			ControlReqChan <- 1
 		}
 	case CMD_CFG_ERROR:
-		// fmt.Printf("CMD_CFG_ERROR\n")
+		// log.Printf("CMD_CFG_ERROR\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -365,7 +411,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_CTRL_ERROR:
-		// fmt.Printf("CMD_CTRL_ERROR\n")
+		// log.Printf("CMD_CTRL_ERROR\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -375,7 +421,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_WAITMODE:
-		// fmt.Printf("CMD_PC_WAITMODE\n")
+		// log.Printf("CMD_PC_WAITMODE\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -385,7 +431,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_SHUTDOWN:
-		// fmt.Printf("CMD_PC_SHUTDOWN\n")
+		// log.Printf("CMD_PC_SHUTDOWN\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -395,7 +441,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_PC_READY:
-		// fmt.Printf("CMD_PC_READY\n")
+		// log.Printf("CMD_PC_READY\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -405,7 +451,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_NEW_PHONES:
-		// fmt.Printf("CMD_NEW_PHONES\n")
+		// log.Printf("CMD_NEW_PHONES\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -415,7 +461,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_SEND_SMS:
-		// fmt.Printf("CMD_SEND_SMS\n")
+		// log.Printf("CMD_SEND_SMS\n")
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
@@ -425,11 +471,11 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- data[2]
 		}
 	case CMD_REQ_MODEM_INFO:
-		// fmt.Printf("CMD_REQ_MODEM_INFO\n")
+		// log.Printf("CMD_REQ_MODEM_INFO\n")
 
 		var st ModemStatus
 		var ptr int = 2
-		//idx := data[ptr]
+		idx := data[ptr]
 		ptr++
 		if data[ptr] == 1 {
 			st.Flymode = true
@@ -456,11 +502,21 @@ func recieveHandler(data []byte) {
 		ptr += IMEI_SIZE
 
 		modemStReq = st
+		ModemSt[idx].Iccid = modemStReq.Iccid
+		ModemSt[idx].Imei = modemStReq.Imei
+		ModemSt[idx].Flymode = modemStReq.Flymode
+		ModemSt[idx].SimNum = modemStReq.SimNum
+		ModemSt[idx].Phone = modemStReq.Phone
+
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- 1
+			FlagHTTPWaitResp = false
+		}
 		if FlagControlWaitResp == true {
 			ControlReqChan <- 1
 		}
 	case CMD_REQ_PHONES:
-		// fmt.Printf("CMD_REQ_PHONES\n")
+		// log.Printf("CMD_REQ_PHONES\n")
 
 		var ph ModemPhones
 		var ptr int = 2
@@ -486,7 +542,7 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- 1
 		}
 	case CMD_REQ_REASON:
-		// fmt.Printf("CMD_REQ_REASON\n")
+		// log.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
 		SystemSt.ReasonBuf = string(data[2 : 2+len])
@@ -495,22 +551,22 @@ func recieveHandler(data []byte) {
 			ControlReqChan <- 1
 		}
 	case CMD_OUT_SHUTDOWN:
-		// fmt.Printf("CMD_OUT_SHUTDOWN\n")
+		// log.Printf("CMD_OUT_SHUTDOWN\n")
 
 		go procShutdown()
 	case CMD_OUT_SAVE_STATE:
-		// fmt.Printf("CMD_OUT_SAVE_STATE\n")
+		// log.Printf("CMD_OUT_SAVE_STATE\n")
 
 		cfg, err := BytesToCfg(data[2 : 2+CONFIG_LEN])
 		if err != nil {
-			fmt.Printf("Error cfg recv %q\n", err)
+			log.Printf("Error cfg recv %q\n", err)
 			return
 		}
 		CfgFile = cfg
 
 		go writeConfigFile("config.txt", cfg)
 	case CMD_OUT_SIM_CHANGE:
-		// fmt.Printf("CMD_OUT_SIM_CHANGE\n")
+		// log.Printf("CMD_OUT_SIM_CHANGE\n")
 
 		var cfg ModemPowerConfig
 		cfg.m1Pwr = data[2]
@@ -520,7 +576,7 @@ func recieveHandler(data []byte) {
 
 		go ProcModemStart(&cfg)
 	case CMD_OUT_SMS:
-		// fmt.Printf("CMD_OUT_SMS\n")
+		// log.Printf("CMD_OUT_SMS\n")
 
 		var ptr uint8 = 2
 		var sms SmsMessage
@@ -539,7 +595,7 @@ func recieveHandler(data []byte) {
 			SmsList.PushBack(&sms)
 		}
 	default:
-		fmt.Println("Unknown command")
+		log.Println("Unknown command")
 	}
 }
 

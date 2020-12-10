@@ -24,7 +24,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx
+		res.Number = idx + 1
 		res.Operator = control.ConnSt[idx].Operator
 		res.BaseID = control.ConnSt[idx].BaseID
 		res.Signal = control.ConnSt[idx].Signal
@@ -43,14 +43,19 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	resp.Results = &res
 
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx
-		res.State = control.ModemSt[idx].Flymode
-		resp.Status = "OK"
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.State = control.ModemSt[idx].Flymode
+			resp.Results = &res
+		}
+		resp.Status = status
 	} else {
 		resp.Status = "INVALID_REQUEST"
 	}
@@ -65,14 +70,19 @@ func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
-	resp.Results = &res
 
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx
-		res.Imei = control.ModemSt[idx].Imei
-		resp.Status = "OK"
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.Imei = control.ModemSt[idx].Imei
+			resp.Results = &res
+		}
+		resp.Status = status
 	} else {
 		resp.Status = "INVALID_REQUEST"
 	}
@@ -87,14 +97,19 @@ func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	var res RespSimResults
 	var resp RespSim
-	resp.Results = &res
 
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx
-		res.SimNum = control.ModemSt[idx].SimNum
-		resp.Status = "OK"
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.SimNum = control.ModemSt[idx].SimNum
+			resp.Results = &res
+		}
+		resp.Status = status
 	} else {
 		resp.Status = "INVALID_REQUEST"
 	}
@@ -109,18 +124,23 @@ func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 	var res RespModemstateResults
 	var resp RespModemstate
-	resp.Results = &res
 
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx
-		res.Flymode = control.ModemSt[idx].Flymode
-		res.Imei = control.ModemSt[idx].Imei
-		res.Phone = control.ModemSt[idx].Phone
-		res.Iccid = control.ModemSt[idx].Iccid
-		res.SimNum = control.ModemSt[idx].SimNum
-		resp.Status = "OK"
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.Flymode = control.ModemSt[idx].Flymode
+			res.Imei = control.ModemSt[idx].Imei
+			res.Phone = control.ModemSt[idx].Phone
+			res.Iccid = control.ModemSt[idx].Iccid
+			res.SimNum = control.ModemSt[idx].SimNum
+			resp.Results = &res
+		}
+		resp.Status = status
 	} else {
 		resp.Status = "INVALID_REQUEST"
 	}
@@ -140,9 +160,9 @@ func SetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 
 	if err == 0 {
 		control.SendFlightmode(idx, state)
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(1)
 		if ret == true {
-			res.Number = idx
+			res.Number = idx + 1
 			res.State = state
 			resp.Results = &res
 			control.ModemSt[idx].Flymode = state
@@ -167,9 +187,9 @@ func SetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 
 	if err == 0 {
 		control.SendSetImei(idx, imei)
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(1)
 		if ret == true {
-			res.Number = idx
+			res.Number = idx + 1
 			res.Imei = imei
 			resp.Results = &res
 			control.ModemSt[idx].Imei = imei
@@ -194,9 +214,9 @@ func SetModemSimByID(w http.ResponseWriter, r *http.Request) {
 
 	if err == 0 {
 		control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(1)
 		if ret == true {
-			res.Number = idx
+			res.Number = idx + 1
 			res.SimNum = num
 			resp.Results = &res
 			control.ModemSt[idx].SimNum = num

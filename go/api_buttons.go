@@ -23,11 +23,11 @@ func SetButtonsLock(w http.ResponseWriter, r *http.Request) {
 	_, state, err := parseNumberState(r)
 	if err == 0 {
 		if state == true {
-			control.SendShort(control.CMD_LOCK, 1)
+			control.SendShort(control.CMD_LOCK, 2)
 		} else {
-			control.SendShort(control.CMD_UNLOCK, 1)
+			control.SendShort(control.CMD_UNLOCK, 2)
 		}
-		status, ret := waitForResponce()
+		status, ret := waitForResponce(1)
 		if ret == true {
 			res.Number = 0
 			res.State = state

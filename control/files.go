@@ -3,8 +3,8 @@ package control
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -133,7 +133,7 @@ func checkPhonesFile(file *FilePhones) error {
 }
 
 func SetPhonesFile(records *[12][3]string) int {
-	fmt.Println("SetPhonesFile")
+	log.Println("SetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
 			phFile.Bank[0][i].Iccid = records[i][0]
@@ -153,7 +153,7 @@ func SetPhonesFile(records *[12][3]string) int {
 }
 
 func GetPhonesFile(records *[12][3]string) {
-	fmt.Println("GetPhonesFile")
+	log.Println("GetPhonesFile")
 	for i := 0; i < 12; i++ {
 		if i < 4 {
 			records[i][0] = phFile.Bank[0][i].Iccid
@@ -172,7 +172,7 @@ func GetPhonesFile(records *[12][3]string) {
 }
 
 func readPhonesFile(path string) (FilePhones, error) {
-	fmt.Println("readPhonesFile")
+	log.Println("readPhonesFile")
 	var ph FilePhones
 
 	csvfile, err := os.Open(path)
@@ -427,7 +427,7 @@ func readConfigFile(path string) (FileConfig, error) {
 		return cfg, err
 	}
 	str := string(bs)
-	fmt.Println("Read: ", str)
+	log.Println("Read: ", str)
 
 	cfg, err = StrToCfg(str)
 
@@ -436,11 +436,11 @@ func readConfigFile(path string) (FileConfig, error) {
 
 func writeConfigFile(path string, cfg FileConfig) error {
 	str := CfgToString(cfg)
-	fmt.Println("Write: ", str)
+	log.Println("Write: ", str)
 
 	file, err := os.Create(path)
 	if err != nil {
-		fmt.Printf("Create error")
+		log.Printf("Create error")
 		return err
 	}
 	file.WriteString(str)

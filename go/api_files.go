@@ -50,7 +50,7 @@ func SetFileConfig(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error reading body: %v", err)
 	}
 	cfg := string(body)
-	//fmt.Printf("Request body is %s\n", cfg)
+	//log.Printf("Request body is %s\n", cfg)
 
 	control.SetConfigFile(cfg)
 
@@ -72,7 +72,7 @@ func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error reading body: %v", err)
 	}
 	//str := string(body)
-	//fmt.Printf("Request body is %s\n", str)
+	//log.Printf("Request body is %s\n", str)
 
 	err = json.Unmarshal(body, &resp.Results)
 	control.SetPhonesFile(&resp.Results)
