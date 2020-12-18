@@ -3,7 +3,7 @@ package control
 const (
 	CMD_NONE           = 0
 	CMD_LOCK           = 1  // [cmd, len, type]
-	CMD_UNLOCK         = 2  // [cmd, len, 0]
+	CMD_UNLOCK         = 2  // [cmd, len, type]
 	CMD_FLYMODE        = 3  // [cmd, len, idx, state]
 	CMD_AT_CMD         = 4  // [cmd, len, ]
 	CMD_POWER          = 5  // [cmd, len, obj, idx, state]
@@ -13,21 +13,23 @@ const (
 	CMD_SET_IMEI       = 9  // [cmd, len, idx, data]
 	CMD_SET_CONFIG     = 11 // [cmd, len, data]
 	CMD_GET_CONFIG     = 12 // [cmd, len, data]
-	CMD_CFG_ERROR      = 13 // [cmd, len, 0]
-	CMD_CTRL_ERROR     = 14 // [cmd, len, 0]
-	CMD_PC_WAITMODE    = 15 // [cmd, len, 1]
-	CMD_PC_SHUTDOWN    = 16 // [cmd, len, 1]
-	CMD_PC_READY       = 17 // [cmd, len, 1]
-	CMD_NEW_PHONES     = 18 // [cmd, len, data]
-	CMD_SEND_SMS       = 19 // [cmd, len, idx, type, phone, msg]
-	CMD_REQ_MODEM_INFO = 20 // [cmd, len, idx]
-	CMD_REQ_PHONES     = 21 // [cmd, len, 0]
-	CMD_REQ_REASON     = 22 // [cmd, len, 0]
-	CMD_OUT_SHUTDOWN   = 23 // [cmd, len, 1]
-	CMD_OUT_SAVE_STATE = 24 // [cmd, len, data]
-	CMD_OUT_SIM_CHANGE = 25 // [cmd, len, data]
-	CMD_OUT_SMS        = 26 // [cmd, len, idx, type, phone, msg]
-	CMD_OUT_AT_CMD     = 27 // [cmd, len, ]
+	CMD_MODEM_READY    = 13
+	CMD_CFG_ERROR      = 14 // [cmd, len, 0]
+	CMD_CTRL_ERROR     = 15 // [cmd, len, 0]
+	CMD_PC_WAITMODE    = 16 // [cmd, len, 1]
+	CMD_PC_SHUTDOWN    = 17 // [cmd, len, 1]
+	CMD_PC_READY       = 18 // [cmd, len, 1]
+	CMD_NEW_PHONES     = 19 // [cmd, len, data]
+	CMD_SEND_SMS       = 20 // [cmd, len, idx, type, phone, msg]
+	CMD_REQ_MODEM_INFO = 21 // [cmd, len, idx]
+	CMD_REQ_CONN_INFO  = 22 // [cmd, len, idx]
+	CMD_REQ_PHONES     = 23 // [cmd, len, 0]
+	CMD_REQ_REASON     = 24 // [cmd, len, 0]
+	CMD_OUT_SHUTDOWN   = 25 // [cmd, len, 1]
+	CMD_OUT_SAVE_STATE = 26 // [cmd, len, data]
+	CMD_OUT_SIM_CHANGE = 27 // [cmd, len, data]
+	CMD_OUT_SMS        = 28 // [cmd, len, idx, type, phone, msg]
+	CMD_OUT_AT_CMD     = 29 // [cmd, len, ]
 
 	OBJECT_PC        = 1
 	OBJECT_MODEM     = 2
@@ -46,48 +48,35 @@ const (
 )
 
 type PowerStatus struct {
-	// Static or battery power
-	PowerStat bool
-	// Battery level
-	BatLevel uint8
-	// PC power control
-	Pc bool
-	// Wifi power control
-	Wifi bool
-	// Relay power control
-	Relay [2]bool
-	// Modem  power control
-	Modem [2]bool
-	// Waitmode
-	Waitmode bool
+	PowerStat bool    // Static or battery power
+	BatLevel  uint8   // Battery level
+	Pc        bool    // PC power control
+	Wifi      bool    // Wifi power control
+	Relay     [2]bool // Relay power control
+	Modem     [2]bool // Modem  power control
+	Waitmode  bool    // Waitmode
 }
 
 type ModemStatus struct {
-	// Flightmode state
-	Flymode bool
-	// Number of current sim-card in bank
-	SimNum uint8
-	// ICCID of current sim-card
-	Iccid string
-	// IMEI of modem
-	Imei string
-	// Current phone number
-	Phone string
+	Flymode bool   // Flightmode state
+	SimNum  uint8  // Number of current sim-card in bank
+	Iccid   string // ICCID of current sim-card
+	Imei    string // IMEI of modem
+	Phone   string // Current phone number
 }
 
 type ModemConnStatus struct {
-	// Current operator
-	Operator string //!Is operId the same as operator?
-	// ID of current base station
-	BaseID string
-	// Signal level
-	Signal string
+	Status uint8
+	Rssi   uint8  // Signal level
+	OperID string // Current operator //!Is operId the same as operator?
+	CellID uint32 // ID of current base station
+	Tac    uint16
 }
 
 type SystemStatus struct {
 	SmsLock     bool
 	ButtonsLock bool
-	ReasonBuf   string
+	ReasonBuf   []byte
 }
 
 type ModemPhones struct {

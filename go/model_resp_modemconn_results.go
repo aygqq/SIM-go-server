@@ -12,9 +12,9 @@ type RespModemconnResults struct {
 	// Number
 	Number uint8 `json:"number"`
 	// Current operator
-	Operator string `json:"operator,omitempty"`
+	OperID string `json:"operator,omitempty"`
 	// ID of current base station
-	BaseID string `json:"base_id,omitempty"`
+	CellID uint32 `json:"base_id,omitempty"`
 	// Signal level
-	Signal string `json:"signal,omitempty"`
+	Rssi uint8 `json:"signal,omitempty"`
 }

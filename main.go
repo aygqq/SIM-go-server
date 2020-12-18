@@ -11,6 +11,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"./control"
@@ -27,12 +28,12 @@ import (
 )
 
 func main() {
-	// f, errf := os.OpenFile("output.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	// if errf != nil {
-	// 	log.Fatalf("Error open log file: %v", errf)
-	// }
-	// defer f.Close()
-	// log.SetOutput(f)
+	f, errf := os.OpenFile("output.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if errf != nil {
+		log.Fatalf("Error open log file: %v", errf)
+	}
+	defer f.Close()
+	log.SetOutput(f)
 
 	log.Printf("Hello programm")
 

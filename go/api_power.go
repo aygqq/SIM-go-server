@@ -35,7 +35,7 @@ func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 		res.Modem1 = cfg.Modem[0]
 		res.Modem2 = cfg.Modem[1]
 		res.SimNum1 = control.ModemSt[0].SimNum
-		res.SimNum1 = control.ModemSt[1].SimNum
+		res.SimNum2 = control.ModemSt[1].SimNum
 		resp.Results = &res
 	}
 

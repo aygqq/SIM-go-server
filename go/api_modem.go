@@ -24,11 +24,17 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
-		res.Number = idx + 1
-		res.Operator = control.ConnSt[idx].Operator
-		res.BaseID = control.ConnSt[idx].BaseID
-		res.Signal = control.ConnSt[idx].Signal
-		resp.Status = "OK"
+		control.SendShort(control.CMD_REQ_CONN_INFO, idx)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.OperID = control.ConnSt[idx].OperID
+			res.CellID = control.ConnSt[idx].CellID
+			res.Rssi = control.ConnSt[idx].Rssi
+			resp.Results = &res
+		}
+		resp.Status = status
 	} else {
 		resp.Status = "INVALID_REQUEST"
 	}

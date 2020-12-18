@@ -74,12 +74,13 @@ func ProcStart() error {
 		waitForResponce()
 		return err
 	}
+	phFile = ph
 
-	log.Println("\tFlightmode on")
-	SendFlightmode(0, true)
-	if err = waitForResponce(); err != nil {
-		return err
-	}
+	// log.Println("\tFlightmode on")
+	// SendFlightmode(0, true)
+	// if err = waitForResponce(); err != nil {
+	// 	return err
+	// }
 
 	SendCommand(CMD_REQ_PHONES, true)
 	if err = waitForResponce(); err != nil {
@@ -116,24 +117,23 @@ func ProcStart() error {
 	if err = waitForResponce(); err != nil {
 		return err
 	}
-	log.Printf("Reason buf is %s\n", SystemSt.ReasonBuf)
-	if strings.HasPrefix(SystemSt.ReasonBuf, "Button") {
+	reason := string(SystemSt.ReasonBuf)
+	log.Printf("Reason buf is %s\n", reason)
+	if strings.HasPrefix(reason, "Button") {
 		ProcButtonStart()
-	} else if strings.HasPrefix(SystemSt.ReasonBuf, "Sms") {
+	} else if strings.HasPrefix(reason, "Sms") {
 		ProcSetConfigStart()
-	} else if strings.HasPrefix(SystemSt.ReasonBuf, "Last") {
+	} else if strings.HasPrefix(reason, "Last") {
 		ProcLastConfigStart()
-	} else if strings.HasPrefix(SystemSt.ReasonBuf, "Modem") {
+	} else if strings.HasPrefix(reason, "Modem") {
 		var cfg ModemPowerConfig
-		data := []byte(SystemSt.ReasonBuf)
-		cfg.m1Pwr = data[6]
-		cfg.m1Sim = data[7]
-		cfg.m2Pwr = data[8]
-		cfg.m2Sim = data[9]
+		// data := []byte(SystemSt.ReasonBuf)
+		cfg.m1Pwr = SystemSt.ReasonBuf[6]
+		cfg.m1Sim = SystemSt.ReasonBuf[7]
+		cfg.m2Pwr = SystemSt.ReasonBuf[8]
+		cfg.m2Sim = SystemSt.ReasonBuf[9]
 		ProcModemStart(&cfg)
 	}
-
-	phFile = ph
 
 	return nil
 }
@@ -147,7 +147,8 @@ func procShutdown() {
 
 func modemTurnOn(idx uint8, sim uint8) error {
 	var err error
-	log.Printf("Modem %d turn on\n", idx+1)
+	log.Printf("Modem turn on (num: %d, sim %d)\n", idx+1, sim)
+
 	if PowerSt.Modem[idx] == true {
 		log.Println("\tPower off")
 		SendObjectPwr(OBJECT_MODEM, idx, false)
@@ -162,7 +163,8 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	if err = waitForResponce(); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+
+	time.Sleep(5 * time.Second)
 
 	log.Println("\tFlightmode on")
 	SendFlightmode(idx, true)
@@ -192,10 +194,8 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	}
 	//? Iccid should be changed on PCB by reading it from SIM?
 	if modemStReq.Iccid != phFile.Bank[idx][sim-1].Iccid {
-		log.Printf("\tIccid is wrong %s %s\n", modemStReq.Iccid, phFile.Bank[idx][sim-1].Iccid)
+		log.Printf("\tIccid is wrong (recv: %s, file: %s)\n", modemStReq.Iccid, phFile.Bank[idx][sim-1].Iccid)
 		err = errors.New("Iccid is wrong")
-		SendCommand(CMD_CFG_ERROR, true)
-		waitForResponce()
 		return err
 	}
 	log.Printf("\tIccid is %s\n", modemStReq.Iccid)
@@ -214,13 +214,12 @@ func modemTurnOn(idx uint8, sim uint8) error {
 		if modemStReq.Imei != phFile.Bank[idx][sim-1].Imei {
 			log.Printf("\tCan not set IMEI %s %s\n", modemStReq.Imei, phFile.Bank[idx][sim-1].Imei)
 			err = errors.New("Can not set IMEI")
-			SendCommand(CMD_CFG_ERROR, true)
-			waitForResponce()
 			return err
 		}
 	}
 	log.Printf("\tIMEI is %s\n", modemStReq.Imei)
 
+	time.Sleep(1 * time.Second)
 	log.Println("\tFlightmode off")
 	SendFlightmode(idx, false)
 	if err = waitForResponce(); err != nil {
@@ -277,23 +276,25 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 			waitForResponce()
 		}
 	}
-	if cfg.m1Pwr == 1 {
-		err = modemTurnOn(0, cfg.m1Sim)
-		if err != nil {
-			log.Printf("Failed to turn on modem 1: %q\n", err)
+	if err == nil {
+		if cfg.m1Pwr == 1 {
+			err = modemTurnOn(0, cfg.m1Sim)
+			if err != nil {
+				log.Printf("Failed to turn on modem 1: %q\n", err)
 
-			ModemSt[0].Iccid = ""
-			ModemSt[0].Imei = ""
-			ModemSt[0].Flymode = false
-			ModemSt[0].SimNum = 0
-			ModemSt[0].Phone = ""
+				ModemSt[0].Iccid = ""
+				ModemSt[0].Imei = ""
+				ModemSt[0].Flymode = false
+				ModemSt[0].SimNum = 0
+				ModemSt[0].Phone = ""
 
-			SendCommand(CMD_CFG_ERROR, true)
-			waitForResponce()
+				SendCommand(CMD_CFG_ERROR, true)
+				waitForResponce()
+			}
 		}
 	}
 
-	SendShort(CMD_UNLOCK, 1)
+	SendShort(CMD_UNLOCK, 0)
 	if err = waitForResponce(); err != nil {
 		log.Printf("Cmd unlock: %q\n", err)
 		return

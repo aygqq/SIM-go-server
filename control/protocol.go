@@ -208,15 +208,31 @@ func SendSmsMessage(sms *SmsMessage) {
 }
 
 func recieveHandler(data []byte) {
+	var crcIn uint16
+	var crc [2]uint8
 	if int(data[1]) != (len(data) - 5) {
-		log.Printf("Wrong length %d (real %d)\n", data[1], (len(data) - 4))
+		log.Printf("Wrong length %d (real %d)\n", data[1], (len(data) - 5))
 		return
 	}
 
-	crc := crc16.Checksum(data[:len(data)-1], table)
+	crcPkt := crc16.Checksum(data[:len(data)-3], table)
 
-	if crc != 0 {
-		log.Printf("Bad crc16 %X\n", crc)
+	crc[0] = uint8(crcPkt)
+	crc[1] = uint8(crcPkt >> 8)
+	if crc[0] == 0xFE {
+		crc[0] = 0xFD
+	}
+	if crc[1] == 0xFE {
+		crc[1] = 0xFD
+	}
+	crcPkt = uint16(crc[1]) << 8
+	crcPkt += uint16(crc[0])
+
+	crcIn = uint16(data[len(data)-2]) << 8
+	crcIn += uint16(data[len(data)-3])
+
+	if crcPkt != crcIn {
+		log.Printf("Bad crc16 0x%X 0x%X\n", crcPkt, crcIn)
 		return
 	}
 	// log.Printf("recv: ")
@@ -515,6 +531,49 @@ func recieveHandler(data []byte) {
 		if FlagControlWaitResp == true {
 			ControlReqChan <- 1
 		}
+	case CMD_REQ_CONN_INFO:
+		// log.Printf("CMD_REQ_CONN_INFO\n")
+
+		var st ModemConnStatus
+		var ptr int = 2
+		idx := data[ptr]
+		ptr++
+
+		st.Status = uint8(data[ptr])
+		ptr++
+
+		st.Rssi = uint8(data[ptr])
+		ptr++
+
+		st.Tac = uint16(data[ptr+1]) << 8
+		st.Tac += uint16(data[ptr])
+		ptr += 2
+
+		st.CellID = uint32(data[ptr+3]) << 24
+		st.CellID += uint32(data[ptr+2]) << 16
+		st.CellID += uint32(data[ptr+1]) << 8
+		st.CellID += uint32(data[ptr])
+		ptr += 4
+
+		var oper = make([]byte, OPERID_SIZE)
+		copy(oper, data[ptr:ptr+OPERID_SIZE])
+		st.OperID = string(oper)
+		ptr += OPERID_SIZE
+
+		ConnSt[idx] = st
+		// ModemSt[idx].Iccid = modemStReq.Iccid
+		// ModemSt[idx].Imei = modemStReq.Imei
+		// ModemSt[idx].Flymode = modemStReq.Flymode
+		// ModemSt[idx].SimNum = modemStReq.SimNum
+		// ModemSt[idx].Phone = modemStReq.Phone
+
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- 1
+			FlagHTTPWaitResp = false
+		}
+		if FlagControlWaitResp == true {
+			ControlReqChan <- 1
+		}
 	case CMD_REQ_PHONES:
 		// log.Printf("CMD_REQ_PHONES\n")
 
@@ -545,7 +604,7 @@ func recieveHandler(data []byte) {
 		// log.Printf("CMD_REQ_REASON\n")
 
 		len := data[1]
-		SystemSt.ReasonBuf = string(data[2 : 2+len])
+		SystemSt.ReasonBuf = data[2 : 2+len]
 		//copy(SystemSt.ReasonBuf, data[2:2+len])
 		if FlagControlWaitResp == true {
 			ControlReqChan <- 1
