@@ -29,6 +29,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 
 		if ret == true {
 			res.Number = idx + 1
+			res.Status = control.ConnSt[idx].Status
 			res.OperID = control.ConnSt[idx].OperID
 			res.CellID = control.ConnSt[idx].CellID
 			res.Rssi = control.ConnSt[idx].Rssi
@@ -39,6 +40,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -66,6 +68,7 @@ func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -93,6 +96,7 @@ func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -120,6 +124,7 @@ func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -141,7 +146,6 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 			res.Number = idx + 1
 			res.Flymode = control.ModemSt[idx].Flymode
 			res.Imei = control.ModemSt[idx].Imei
-			res.Phone = control.ModemSt[idx].Phone
 			res.Iccid = control.ModemSt[idx].Iccid
 			res.SimNum = control.ModemSt[idx].SimNum
 			resp.Results = &res
@@ -151,6 +155,7 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -178,6 +183,7 @@ func SetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -205,6 +211,7 @@ func SetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -232,6 +239,7 @@ func SetModemSimByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 

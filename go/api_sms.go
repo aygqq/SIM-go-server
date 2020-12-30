@@ -37,6 +37,7 @@ func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -69,6 +70,7 @@ func SetSendSms(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -100,6 +102,7 @@ func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 

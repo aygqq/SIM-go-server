@@ -19,6 +19,4 @@ type RespModemstateResults struct {
 	Iccid string `json:"sim_id"`
 	// IMEI of modem
 	Imei string `json:"imei"`
-	// Current phone number
-	Phone string `json:"phone"`
 }

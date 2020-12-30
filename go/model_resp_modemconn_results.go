@@ -11,6 +11,8 @@ package swagger
 type RespModemconnResults struct {
 	// Number
 	Number uint8 `json:"number"`
+	// Connection status
+	Status uint8 `json:"status"`
 	// Current operator
 	OperID string `json:"operator,omitempty"`
 	// ID of current base station

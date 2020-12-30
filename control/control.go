@@ -1,6 +1,7 @@
 package control
 
 import (
+	"bytes"
 	"container/list"
 	"errors"
 	"log"
@@ -145,6 +146,30 @@ func procShutdown() {
 	}
 }
 
+func procChangeOperator(ip string, operID string) error {
+	// cmdStr := fmt.Sprintf("admin@%s 'interface lte set operator=%s lte1'", ip, operID)
+	// cmd := exec.Command("ssh", cmdStr)
+
+	cmd := exec.Command("/bin/sh", "modem_op_set.sh", ip, operID)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	// log.Println(cmdStr)
+	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	log.Println(outStr)
+	log.Println(errStr)
+
+	if err != nil {
+		return err
+	}
+	if errStr != "" {
+		err = errors.New(errStr)
+	}
+	return err
+}
+
 func modemTurnOn(idx uint8, sim uint8) error {
 	var err error
 	log.Printf("Modem turn on (num: %d, sim %d)\n", idx+1, sim)
@@ -218,6 +243,17 @@ func modemTurnOn(idx uint8, sim uint8) error {
 		}
 	}
 	log.Printf("\tIMEI is %s\n", modemStReq.Imei)
+	time.Sleep(5 * time.Second)
+	log.Printf("\tChanging operator to %s\n", phFile.Bank[idx][sim-1].OperID)
+	if idx == 0 {
+		err = procChangeOperator("192.168.88.1", phFile.Bank[idx][sim-1].OperID)
+	} else {
+		err = procChangeOperator("192.168.89.1", phFile.Bank[idx][sim-1].OperID)
+	}
+	if err != nil {
+		return err
+	}
+	time.Sleep(5 * time.Second)
 
 	time.Sleep(1 * time.Second)
 	log.Println("\tFlightmode off")

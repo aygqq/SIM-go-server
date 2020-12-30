@@ -56,7 +56,7 @@ var routes = Routes{
 
 	Route{
 		"SetButtonsLock",
-		strings.ToUpper("Put"),
+		strings.ToUpper("Post"),
 		"/buttons/lock",
 		SetButtonsLock,
 	},
@@ -64,133 +64,133 @@ var routes = Routes{
 	Route{
 		"GetFileConfig",
 		strings.ToUpper("Get"),
-		"/files/config",
+		"/files/get/config",
 		GetFileConfig,
 	},
 
 	Route{
 		"GetFilePhones",
 		strings.ToUpper("Get"),
-		"/files/phones",
+		"/files/get/phones",
 		GetFilePhones,
 	},
 
 	Route{
 		"SetFileConfig",
-		strings.ToUpper("Put"),
-		"/files/config",
+		strings.ToUpper("Post"),
+		"/files/set/config",
 		SetFileConfig,
 	},
 
 	Route{
 		"SetFileNPhones",
-		strings.ToUpper("Put"),
-		"/files/phones",
+		strings.ToUpper("Post"),
+		"/files/set/phones",
 		SetFileNPhones,
 	},
 
 	Route{
 		"GetModemConnByID",
 		strings.ToUpper("Get"),
-		"/modem/conn",
+		"/modem/get/conn",
 		GetModemConnByID,
 	},
 
 	Route{
 		"GetModemFlyByID",
 		strings.ToUpper("Get"),
-		"/modem/state/flymode",
+		"/modem/get/state/flymode",
 		GetModemFlyByID,
 	},
 
 	Route{
 		"GetModemImeiByID",
 		strings.ToUpper("Get"),
-		"/modem/state/imei",
+		"/modem/get/state/imei",
 		GetModemImeiByID,
 	},
 
 	Route{
 		"GetModemSimByID",
 		strings.ToUpper("Get"),
-		"/modem/state/sim",
+		"/modem/get/state/sim",
 		GetModemSimByID,
 	},
 
 	Route{
 		"GetModemStByID",
 		strings.ToUpper("Get"),
-		"/modem/state",
+		"/modem/get/state",
 		GetModemStByID,
 	},
 
 	Route{
 		"SetModemFlyByID",
-		strings.ToUpper("Put"),
-		"/modem/state/flymode",
+		strings.ToUpper("Post"),
+		"/modem/set/state/flymode",
 		SetModemFlyByID,
 	},
 
 	Route{
 		"SetModemImeiByID",
-		strings.ToUpper("Put"),
-		"/modem/state/imei",
+		strings.ToUpper("Post"),
+		"/modem/set/state/imei",
 		SetModemImeiByID,
 	},
 
 	Route{
 		"SetModemSimByID",
-		strings.ToUpper("Put"),
-		"/modem/state/sim",
+		strings.ToUpper("Post"),
+		"/modem/set/state/sim",
 		SetModemSimByID,
 	},
 
 	Route{
 		"GetPwrCfg",
 		strings.ToUpper("Get"),
-		"/power",
+		"/power/get",
 		GetPwrCfg,
 	},
 
 	Route{
+		"SetDownPwrPC",
+		strings.ToUpper("Post"),
+		"/power/set/pc",
+		SetDownPwrPC,
+	},
+
+	Route{
 		"SetPwrCfg",
-		strings.ToUpper("Put"),
-		"/power",
+		strings.ToUpper("Post"),
+		"/power/set",
 		SetPwrCfg,
 	},
 
 	Route{
 		"SetPwrModemByID",
-		strings.ToUpper("Put"),
-		"/power/modem",
+		strings.ToUpper("Post"),
+		"/power/set/modem",
 		SetPwrModemByID,
 	},
 
 	Route{
-		"SetDownPwrPC",
-		strings.ToUpper("Put"),
-		"/power/pc",
-		SetDownPwrPC,
-	},
-
-	Route{
 		"SetPwrRelayByID",
-		strings.ToUpper("Put"),
-		"/power/relay",
+		strings.ToUpper("Post"),
+		"/power/set/relay",
 		SetPwrRelayByID,
 	},
 
 	Route{
 		"SetPwrWiFi",
-		strings.ToUpper("Put"),
-		"/power/wifi",
+		strings.ToUpper("Post"),
+		"/power/set/wifi",
 		SetPwrWiFi,
 	},
 
 	Route{
 		"SetWaitmode",
-		strings.ToUpper("Put"),
-		"/power/waitmode",
+		strings.ToUpper("Post"),
+		"/power/set/waitmode",
 		SetWaitmode,
 	},
 
@@ -203,14 +203,14 @@ var routes = Routes{
 
 	Route{
 		"SetSendSms",
-		strings.ToUpper("Put"),
+		strings.ToUpper("Post"),
 		"/sms/send",
 		SetSendSms,
 	},
 
 	Route{
 		"SetSmsLock",
-		strings.ToUpper("Put"),
+		strings.ToUpper("Post"),
 		"/sms/lock",
 		SetSmsLock,
 	},

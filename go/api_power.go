@@ -41,6 +41,7 @@ func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 
 	resp.Status = status
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -144,6 +145,7 @@ func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -171,6 +173,7 @@ func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -206,6 +209,7 @@ func SetDownPwrPC(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -233,6 +237,7 @@ func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -260,6 +265,7 @@ func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
@@ -287,6 +293,7 @@ func SetWaitmode(w http.ResponseWriter, r *http.Request) {
 		resp.Status = "INVALID_REQUEST"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 
