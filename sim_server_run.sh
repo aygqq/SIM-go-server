@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /home/sim_pc/Sim_Reader_go_server/go-server
+cd /home/sim_pc/SIM-go-server
 
 sudo chmod o+rw /dev/ttyACM0
 
