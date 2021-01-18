@@ -132,24 +132,29 @@ func checkPhonesFile(file *FilePhones) error {
 	return nil
 }
 
-func SetPhonesFile(records *[12][3]string) int {
+func SetPhonesFile(records *[12][3]string) error {
 	log.Println("SetPhonesFile")
+	var ph FilePhones
+
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			phFile.Bank[0][i].Iccid = records[i][0]
-			phFile.Bank[0][i].Imei = records[i][1]
-			phFile.Bank[0][i].OperID = records[i][2]
+			ph.Bank[0][i].Iccid = records[i][0]
+			ph.Bank[0][i].Imei = records[i][1]
+			ph.Bank[0][i].OperID = records[i][2]
 		} else if i < 8 {
-			phFile.Bank[1][i-4].Iccid = records[i][0]
-			phFile.Bank[1][i-4].Imei = records[i][1]
-			phFile.Bank[1][i-4].OperID = records[i][2]
+			ph.Bank[1][i-4].Iccid = records[i][0]
+			ph.Bank[1][i-4].Imei = records[i][1]
+			ph.Bank[1][i-4].OperID = records[i][2]
 		} else {
-			phFile.Phones.PhonesOut[i-8] = records[i][0]
-			phFile.Phones.PhonesIn[i-8] = records[i][1]
+			ph.Phones.PhonesOut[i-8] = records[i][0]
+			ph.Phones.PhonesIn[i-8] = records[i][1]
 		}
 	}
+	err := writePhonesFile("phones.csv", ph)
 
-	return 0
+	// phFile = ph
+
+	return err
 }
 
 func GetPhonesFile(records *[12][3]string) {
@@ -404,9 +409,20 @@ func BytesToCfg(data []byte) (FileConfig, error) {
 	return cfg, nil
 }
 
+func DeleteFile(path string) error {
+	log.Println("Deleting config file")
+
+	return os.Remove(path)
+}
+
 func SetConfigFile(str string) error {
 	cfg, err := StrToCfg(str)
-	CfgFile = cfg
+	if err != nil {
+		return err
+	}
+
+	err = writeConfigFile("config.txt", cfg)
+	// CfgFile = cfg
 	return err
 }
 

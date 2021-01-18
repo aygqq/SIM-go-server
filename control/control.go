@@ -133,6 +133,7 @@ func ProcStart() error {
 		cfg.m1Sim = SystemSt.ReasonBuf[7]
 		cfg.m2Pwr = SystemSt.ReasonBuf[8]
 		cfg.m2Sim = SystemSt.ReasonBuf[9]
+
 		ProcModemStart(&cfg)
 	}
 
@@ -293,9 +294,15 @@ func ProcLastConfigStart() error {
 	return nil
 }
 
-// ProcModemStart - This procedure sterts the modem
+// ProcModemStart - This procedure starts the modem
 func ProcModemStart(cfg *ModemPowerConfig) {
 	var err error
+
+	reason := string(SystemSt.ReasonBuf)
+	if !strings.HasPrefix(reason, "Last") {
+		DeleteFile("config.txt")
+	}
+	SystemSt.ReasonBuf = nil
 
 	if cfg.m2Pwr == 1 {
 		err = modemTurnOn(1, cfg.m2Sim)

@@ -184,30 +184,16 @@ func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 func SetDownPwrPC(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
-	var ret bool
-	var status string
 
-	_, state, err := parseNumberState(r)
-
-	if err == 0 {
-		if state == true {
-			control.SendCommand(control.CMD_PC_WAITMODE, state)
-			status, ret = waitForResponce(1)
-		} else {
-			control.SendCommand(control.CMD_PC_SHUTDOWN, state)
-			status, ret = waitForResponce(1)
-		}
-
-		if ret == true {
-			res.Number = 0
-			res.State = state
-			resp.Results = &res
-			control.PowerSt.Pc = false
-		}
-		resp.Status = status
-	} else {
-		resp.Status = "INVALID_REQUEST"
+	control.SendObjectPwr(control.OBJECT_PC, 0, false)
+	status, ret := waitForResponce(1)
+	if ret == true {
+		res.Number = 0
+		res.State = false
+		resp.Results = &res
+		control.PowerSt.Pc = false
 	}
+	resp.Status = status
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -276,17 +262,25 @@ func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 func SetWaitmode(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
+	var ret bool
+	var status string
 
 	_, state, err := parseNumberState(r)
 
 	if err == 0 {
-		control.SendCommand(control.CMD_PC_WAITMODE, state)
-		status, ret := waitForResponce(1)
+		if state == true {
+			control.SendCommand(control.CMD_PC_WAITMODE, true)
+			status, ret = waitForResponce(1)
+		} else {
+			control.SendCommand(control.CMD_PC_SHUTDOWN, true)
+			status, ret = waitForResponce(1)
+		}
+
 		if ret == true {
 			res.Number = 0
-			res.State = state
+			res.State = true
 			resp.Results = &res
-			control.PowerSt.Waitmode = state
+			control.PowerSt.Waitmode = false
 		}
 		resp.Status = status
 	} else {

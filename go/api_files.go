@@ -54,10 +54,13 @@ func SetFileConfig(w http.ResponseWriter, r *http.Request) {
 	cfg := string(body)
 	//log.Printf("Request body is %s\n", cfg)
 
-	control.SetConfigFile(cfg)
-
+	err = control.SetConfigFile(cfg)
+	if err != nil {
+		resp.Status = "EXECUTE_ERROR"
+	} else {
+		resp.Status = "OK"
+	}
 	resp.Results = control.GetConfigFileString()
-	resp.Status = "OK"
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -79,7 +82,10 @@ func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	err = json.Unmarshal(body, &resp.Results)
-	control.SetPhonesFile(&resp.Results)
+	err = control.SetPhonesFile(&resp.Results)
+	if err != nil {
+		resp.Status = "EXECUTE_ERROR"
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
