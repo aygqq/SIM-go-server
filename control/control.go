@@ -1,14 +1,22 @@
 package control
 
 import (
-	"bytes"
 	"container/list"
 	"errors"
+	"flag"
 	"log"
 	"os/exec"
 	"reflect"
 	"strings"
 	"time"
+
+	"gopkg.in/routeros.v2"
+)
+
+var (
+	address  = flag.String("address", "192.168.88.1:8728", "Address")
+	username = flag.String("username", "admin", "Username")
+	password = flag.String("password", "", "Password")
 )
 
 // PowerSt - States of power control block
@@ -51,7 +59,6 @@ func waitForResponce() error {
 
 	select {
 	case read := <-ControlReqChan:
-		//! COM now in echo mode, so that "read" value doesn't matter
 		if read == 0 {
 			err = errors.New("Wrong response received")
 		}
@@ -109,12 +116,6 @@ func ProcStart() error {
 	}
 	phFile = ph
 
-	// log.Println("\tFlightmode on")
-	// SendFlightmode(0, true)
-	// if err = waitForResponce(); err != nil {
-	// 	return err
-	// }
-
 	err = ProcSetPhones(ph.Phones)
 	if err != nil {
 		return err
@@ -158,28 +159,49 @@ func procShutdown() {
 	}
 }
 
-func procChangeOperator(ip string, operID string) error {
-	// cmdStr := fmt.Sprintf("admin@%s 'interface lte set operator=%s lte1'", ip, operID)
-	// cmd := exec.Command("ssh", cmdStr)
+func procChangeOperator(idx uint8, operID string) error {
+	if idx == 0 {
+		flag.Set("address", "192.168.88.1:8728")
+	} else {
+		flag.Set("address", "192.168.89.1:8728")
+	}
 
-	cmd := exec.Command("/bin/sh", "modem_op_set.sh", ip, operID)
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	flag.Parse()
 
-	err := cmd.Run()
-	// log.Println(cmdStr)
-	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
-	log.Println(outStr)
-	log.Println(errStr)
-
+	c, err := routeros.Dial(*address, *username, *password)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	reply, err := c.Run("/interface/lte/set", "=operator="+operID, "=.id=lte1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// log.Printf("word %q\n", reply.Done.Word)
+	if reply.Done.Word != "!done" {
+		err = errors.New("Can't set operator")
 		return err
 	}
-	if errStr != "" {
-		err = errors.New(errStr)
+
+	time.Sleep(time.Second)
+
+	reply, err = c.Run("/interface/lte/get", "=value-name=operator", "=number=lte1")
+	if err != nil {
+		log.Fatal(err)
 	}
-	return err
+
+	// log.Printf("key %q\n", reply.Done.List[0].Key)
+	// log.Printf("val %q\n", reply.Done.List[0].Value)
+
+	if reply.Done.List[0].Value != operID {
+		err = errors.New("Can't verify operator")
+		return err
+	}
+
+	c.Close()
+
+	return nil
 }
 
 func modemTurnOn(idx uint8, sim uint8) error {
@@ -257,11 +279,8 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	log.Printf("\tIMEI is %s\n", modemStReq.Imei)
 	time.Sleep(5 * time.Second)
 	log.Printf("\tChanging operator to %s\n", phFile.Bank[idx][sim-1].OperID)
-	if idx == 0 {
-		err = procChangeOperator("192.168.88.1", phFile.Bank[idx][sim-1].OperID)
-	} else {
-		err = procChangeOperator("192.168.89.1", phFile.Bank[idx][sim-1].OperID)
-	}
+
+	err = procChangeOperator(idx, phFile.Bank[idx][sim-1].OperID)
 	if err != nil {
 		return err
 	}
