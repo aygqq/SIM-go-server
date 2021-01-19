@@ -176,6 +176,34 @@ func GetPhonesFile(records *[12][3]string) {
 	}
 }
 
+func WritePhones(ph ModemPhones) error {
+	phFile.Phones = ph
+
+	err := writePhonesFile("phones.csv", phFile)
+
+	return err
+}
+
+func GetPhonesReq(records *[4][2]string) {
+	log.Println("GetPhonesReq")
+	for i := 0; i < 4; i++ {
+		records[i][0] = modemPhReq.PhonesOut[i]
+		records[i][1] = modemPhReq.PhonesIn[i]
+	}
+}
+
+func ParsePhones(records *[4][2]string) ModemPhones {
+	log.Println("SetPhonesReq")
+	var ph ModemPhones
+
+	for i := 0; i < 4; i++ {
+		ph.PhonesOut[i] = records[i][0]
+		ph.PhonesIn[i] = records[i][1]
+	}
+
+	return ph
+}
+
 func readPhonesFile(path string) (FilePhones, error) {
 	log.Println("readPhonesFile")
 	var ph FilePhones

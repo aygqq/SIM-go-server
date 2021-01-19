@@ -66,6 +66,38 @@ func waitForResponce() error {
 	return err
 }
 
+func ProcSetPhones(ph ModemPhones) error {
+	var err error
+
+	SendCommand(CMD_REQ_PHONES, true)
+	if err = waitForResponce(); err != nil {
+		return err
+	}
+
+	if reflect.DeepEqual(modemPhReq, ph) == false {
+		SendNewPhones(ph)
+		if err = waitForResponce(); err != nil {
+			return err
+		}
+		SendCommand(CMD_REQ_PHONES, true)
+		if err = waitForResponce(); err != nil {
+			return err
+		}
+		if modemPhReq == ph {
+			log.Println("Phones are equal")
+		} else {
+			log.Println("Phones recv\n", modemPhReq)
+			log.Println("Phones file\n", ph)
+			err = errors.New("Phones file double check failed")
+			SendCommand(CMD_CFG_ERROR, true)
+			waitForResponce()
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ProcStart function
 func ProcStart() error {
 	ph, err := readPhonesFile("phones.csv")
@@ -83,30 +115,9 @@ func ProcStart() error {
 	// 	return err
 	// }
 
-	SendCommand(CMD_REQ_PHONES, true)
-	if err = waitForResponce(); err != nil {
+	err = ProcSetPhones(ph.Phones)
+	if err != nil {
 		return err
-	}
-
-	if reflect.DeepEqual(modemPhReq, ph.Phones) == false {
-		SendNewPhones(ph.Phones)
-		if err = waitForResponce(); err != nil {
-			return err
-		}
-		SendCommand(CMD_REQ_PHONES, true)
-		if err = waitForResponce(); err != nil {
-			return err
-		}
-		if modemPhReq == ph.Phones {
-			log.Println("Phones are equal")
-		} else {
-			log.Println("Phones recv\n", modemPhReq)
-			log.Println("Phones file\n", ph.Phones)
-			err = errors.New("Phones file double check failed")
-			SendCommand(CMD_CFG_ERROR, true)
-			waitForResponce()
-			return err
-		}
 	}
 
 	SendCommand(CMD_PC_READY, true)

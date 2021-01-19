@@ -70,7 +70,7 @@ func SetFileConfig(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(str))
 }
 
-func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
+func SetFilePhones(w http.ResponseWriter, r *http.Request) {
 	var resp RespFilephones
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -80,13 +80,16 @@ func SetFileNPhones(w http.ResponseWriter, r *http.Request) {
 	//str := string(body)
 	//log.Printf("Request body is %s\n", str)
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	err = json.Unmarshal(body, &resp.Results)
 	err = control.SetPhonesFile(&resp.Results)
 	if err != nil {
 		resp.Status = "EXECUTE_ERROR"
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
 }

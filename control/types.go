@@ -87,7 +87,7 @@ type ModemPhones struct {
 type ModemSimParams struct {
 	Iccid  string
 	Imei   string
-	OperID string //!Is operId the same as operator?
+	OperID string
 }
 
 type FileConfig struct {

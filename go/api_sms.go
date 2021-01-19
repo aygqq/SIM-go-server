@@ -11,10 +11,30 @@ package swagger
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"../control"
 )
+
+func GetSmsNumbers(w http.ResponseWriter, r *http.Request) {
+	var resp RespNumbers
+
+	control.SendCommand(control.CMD_REQ_PHONES, true)
+	status, ret := waitForResponce(1)
+	if ret == true {
+		control.GetPhonesReq(&resp.Results)
+		resp.Status = status
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
 
 func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 	var res RespSmsResults
@@ -35,6 +55,35 @@ func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 
 			control.SmsList.Remove(e)
 		}
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
+func SetSmsNumbers(w http.ResponseWriter, r *http.Request) {
+	var resp RespNumbers
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v", err)
+	}
+	//str := string(body)
+	//log.Printf("Request body is %s\n", str)
+
+	err = json.Unmarshal(body, &resp.Results)
+
+	ph := control.ParsePhones(&resp.Results)
+	err = control.ProcSetPhones(ph)
+	if err != nil {
+		resp.Status = "EXECUTE_ERROR"
+	} else {
+		control.WritePhones(ph)
+		resp.Status = "OK"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")

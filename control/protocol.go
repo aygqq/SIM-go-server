@@ -600,6 +600,10 @@ func recieveHandler(data []byte) {
 		if FlagControlWaitResp == true {
 			ControlReqChan <- 1
 		}
+		if FlagHTTPWaitResp == true {
+			HTTPReqChan <- 1
+			FlagHTTPWaitResp = false
+		}
 	case CMD_REQ_REASON:
 		// log.Printf("CMD_REQ_REASON\n")
 
