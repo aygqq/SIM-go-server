@@ -116,7 +116,6 @@ func ProcStart() error {
 		waitForResponce()
 		return err
 	}
-	phFile = ph
 
 	err = checkPhonesFile(&ph)
 	if err != nil {
@@ -127,6 +126,7 @@ func ProcStart() error {
 		waitForResponce()
 		return err
 	}
+	phFile = ph
 
 	err = ProcSetPhones(ph.Phones)
 	if err != nil {
