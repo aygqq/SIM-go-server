@@ -157,23 +157,28 @@ func SetPhonesFile(records *[12][3]string) error {
 	return err
 }
 
-func GetPhonesFile(records *[12][3]string) {
+func GetPhonesFile(records *[12][3]string) error {
 	log.Println("GetPhonesFile")
+	ph, err := readPhonesFile("phones.csv")
+	if err != nil {
+		return err
+	}
 	for i := 0; i < 12; i++ {
 		if i < 4 {
-			records[i][0] = phFile.Bank[0][i].Iccid
-			records[i][1] = phFile.Bank[0][i].Imei
-			records[i][2] = phFile.Bank[0][i].OperID
+			records[i][0] = ph.Bank[0][i].Iccid
+			records[i][1] = ph.Bank[0][i].Imei
+			records[i][2] = ph.Bank[0][i].OperID
 		} else if i < 8 {
-			records[i][0] = phFile.Bank[1][i-4].Iccid
-			records[i][1] = phFile.Bank[1][i-4].Imei
-			records[i][2] = phFile.Bank[1][i-4].OperID
+			records[i][0] = ph.Bank[1][i-4].Iccid
+			records[i][1] = ph.Bank[1][i-4].Imei
+			records[i][2] = ph.Bank[1][i-4].OperID
 		} else {
-			records[i][0] = phFile.Phones.PhonesOut[i-8]
-			records[i][1] = phFile.Phones.PhonesIn[i-8]
+			records[i][0] = ph.Phones.PhonesOut[i-8]
+			records[i][1] = ph.Phones.PhonesIn[i-8]
 			records[i][2] = ""
 		}
 	}
+	return nil
 }
 
 func WritePhones(ph ModemPhones) error {
@@ -239,13 +244,17 @@ func readPhonesFile(path string) (FilePhones, error) {
 		}
 	}
 
-	err = checkPhonesFile(&ph)
-
 	return ph, err
 }
 
 func writePhonesFile(path string, ph FilePhones) error {
 	var record [3]string
+
+	err := checkPhonesFile(&ph)
+	if err != nil {
+		return err
+	}
+
 	file, err := os.Create(path)
 	if err != nil {
 		return err
