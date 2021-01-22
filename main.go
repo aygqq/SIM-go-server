@@ -41,7 +41,7 @@ func main() {
 	control.InitProtocol()
 	err := control.ProcStart()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	log.Printf("Server started")
