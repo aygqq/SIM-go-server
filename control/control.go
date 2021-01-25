@@ -112,12 +112,26 @@ func ProcStart() error {
 		log.Printf("Failed to read file: %q\n", err)
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
+		SendCommand(CMD_PC_READY, true)
+		waitForResponce()
+		return err
+	}
+
+	err = checkPhonesFile(&ph)
+	if err != nil {
+		log.Printf("Failed to read file: %q\n", err)
+		SendCommand(CMD_CFG_ERROR, true)
+		waitForResponce()
+		SendCommand(CMD_PC_READY, true)
+		waitForResponce()
 		return err
 	}
 	phFile = ph
 
 	err = ProcSetPhones(ph.Phones)
 	if err != nil {
+		SendCommand(CMD_PC_READY, true)
+		waitForResponce()
 		return err
 	}
 
