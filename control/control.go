@@ -184,12 +184,12 @@ func procChangeOperator(idx uint8, operID string) error {
 
 	c, err := routeros.Dial(*address, *username, *password)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	reply, err := c.Run("/interface/lte/set", "=operator="+operID, "=.id=lte1")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// log.Printf("word %q\n", reply.Done.Word)
@@ -202,7 +202,7 @@ func procChangeOperator(idx uint8, operID string) error {
 
 	reply, err = c.Run("/interface/lte/get", "=value-name=operator", "=number=lte1")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// log.Printf("key %q\n", reply.Done.List[0].Key)
