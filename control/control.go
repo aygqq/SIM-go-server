@@ -348,6 +348,12 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 	}
 	SystemSt.ReasonBuf = nil
 
+	SendShort(CMD_LOCK, 0)
+	if err = waitForResponce(); err != nil {
+		log.Printf("Cmd unlock: %q\n", err)
+		return
+	}
+
 	if cfg.m2Pwr == 1 {
 		err = modemTurnOn(1, cfg.m2Sim)
 		if err != nil {
