@@ -21,7 +21,6 @@ func InitProtocol() {
 
 	SmsList = list.New()
 
-	//! TODO: Table must be simmilar with PCB's table
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
 }
 
@@ -505,16 +504,19 @@ func recieveHandler(data []byte) {
 		var iccid = make([]byte, ICCID_SIZE)
 		copy(iccid, data[ptr:ptr+ICCID_SIZE])
 		st.Iccid = string(iccid)
+		st.Iccid = strings.Trim(st.Iccid, "\u0000")
 		ptr += ICCID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
 		st.Phone = string(phone)
+		st.Phone = strings.Trim(st.Phone, "\u0000")
 		ptr += PHONE_SIZE
 
 		var imei = make([]byte, IMEI_SIZE)
 		copy(imei, data[ptr:ptr+IMEI_SIZE])
 		st.Imei = string(imei)
+		st.Imei = strings.Trim(st.Imei, "\u0000")
 		ptr += IMEI_SIZE
 
 		modemStReq = st
@@ -558,6 +560,7 @@ func recieveHandler(data []byte) {
 		var oper = make([]byte, OPERID_SIZE)
 		copy(oper, data[ptr:ptr+OPERID_SIZE])
 		st.OperID = string(oper)
+		st.OperID = strings.Trim(st.OperID, "\u0000")
 		ptr += OPERID_SIZE
 
 		ConnSt[idx] = st
@@ -649,6 +652,7 @@ func recieveHandler(data []byte) {
 		sms.MsgType = data[ptr]
 		ptr++
 		sms.Phone = string(data[ptr : ptr+PHONE_SIZE])
+		sms.Phone = strings.Trim(sms.Phone, "\u0000")
 		ptr = ptr + PHONE_SIZE
 		msgLen := data[1] - PHONE_SIZE - 2
 		sms.Message = string(data[ptr : ptr+msgLen])

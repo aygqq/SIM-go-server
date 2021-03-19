@@ -112,23 +112,21 @@ func parseNumberPhoneSms(r *http.Request) (uint8, string, string, uint8) {
 }
 
 func waitForResponce(secs int) (string, bool) {
+	// control.FlagHTTPWaitResp = true
+
 	var ret bool
 	var status string
 
-	control.FlagHTTPWaitResp = true
 	select {
 	case read := <-control.HTTPReqChan:
-		//! COM now in echo mode, so that "read" value doesn't matter
-		// if read == 1 {
-		// 	status = "OK"
-		// 	ret = true
-		// } else {
-		// 	status = "EXECUTE_ERROR"
-		// 	ret = false
-		// }
+		if read == 1 {
+			status = "OK"
+			ret = true
+		} else {
+			status = "EXECUTE_ERROR"
+			ret = false
+		}
 		log.Printf("Chanel recv %d\n", read)
-		status = "OK"
-		ret = true
 	case <-time.After(time.Duration(secs) * time.Second):
 		log.Println("No response received")
 		status = "EXECUTE_ERROR"
