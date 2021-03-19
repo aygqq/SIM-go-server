@@ -52,6 +52,8 @@ var FlagHTTPWaitResp bool = false
 // FlagControlWaitResp - What chanel is in use
 var FlagControlWaitResp bool = false
 
+var router [2]routerInfo
+
 func waitForResponce() error {
 	var err error
 
@@ -107,6 +109,16 @@ func ProcSetPhones(ph ModemPhones) error {
 
 // ProcStart function
 func ProcStart() error {
+	err := readRouterFile("routers.csv")
+	if err != nil {
+		log.Printf("Failed to read file: %q\n", err)
+		SendCommand(CMD_CFG_ERROR, true)
+		waitForResponce()
+		SendCommand(CMD_PC_READY, true)
+		waitForResponce()
+		return err
+	}
+
 	ph, err := readPhonesFile("phones.csv")
 	if err != nil {
 		log.Printf("Failed to read file: %q\n", err)
@@ -174,11 +186,10 @@ func procShutdown() {
 }
 
 func procChangeOperator(idx uint8, operID string) error {
-	if idx == 0 {
-		flag.Set("address", "192.168.88.1:8728")
-	} else {
-		flag.Set("address", "192.168.89.1:8728")
-	}
+	
+	flag.Set("address", router[idx].addr)
+	flag.Set("username", router[idx].user)
+	flag.Set("password", router[idx].pw)
 
 	flag.Parse()
 

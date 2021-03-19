@@ -500,3 +500,34 @@ func writeConfigFile(path string, cfg FileConfig) error {
 	file.Close()
 	return nil
 }
+
+func readRouterFile(path string) error {
+	log.Println("readRouterFile")
+
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Parse the file
+	r := csv.NewReader(file)
+
+	// Iterate through the records
+	for i := 0; i < 2; i++ {
+		// Read each record from csv
+		record, err := r.Read()
+		if err != nil {
+			return err
+		}
+
+		router[i].addr = record[0]
+		router[i].user = record[1]
+		router[i].pw = record[2]
+		log.Printf("Rourer %d addr: %s\r\n", i+1, router[i].addr)
+		log.Printf("Rourer %d user: %s\r\n", i+1, router[i].user)
+		log.Printf("Rourer %d pw: %s\r\n", i+1, router[i].pw)
+	}
+
+	return err
+}
