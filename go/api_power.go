@@ -21,6 +21,7 @@ func GetPwrCfg(w http.ResponseWriter, r *http.Request) {
 	var res RespPowercfgResults
 	var resp RespPowercfg
 
+	control.FlagHTTPWaitResp = true
 	control.SendCommand(control.CMD_GET_CONFIG, true)
 	status, ret := waitForResponce(1)
 
@@ -122,8 +123,8 @@ func SetPwrCfg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendConfig(newCfg)
-
 		status, ret := waitForResponce(1)
 		if ret == true {
 			cfg := &control.PowerSt
@@ -160,6 +161,7 @@ func SetPwrModemByID(w http.ResponseWriter, r *http.Request) {
 	idx, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendObjectPwr(control.OBJECT_MODEM, idx, state)
 		status, ret := waitForResponce(1)
 		if ret == true {
@@ -185,6 +187,7 @@ func SetDownPwrPC(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
+	control.FlagHTTPWaitResp = true
 	control.SendObjectPwr(control.OBJECT_PC, 0, false)
 	status, ret := waitForResponce(1)
 	if ret == true {
@@ -210,6 +213,7 @@ func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 	idx, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendObjectPwr(control.OBJECT_RELAY, idx, state)
 		status, ret := waitForResponce(1)
 		if ret == true {
@@ -238,6 +242,7 @@ func SetPwrWiFi(w http.ResponseWriter, r *http.Request) {
 	_, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendObjectPwr(control.OBJECT_WIFI, 0, state)
 		status, ret := waitForResponce(1)
 		if ret == true {
@@ -268,6 +273,7 @@ func SetWaitmode(w http.ResponseWriter, r *http.Request) {
 	_, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		if state == true {
 			control.SendCommand(control.CMD_PC_WAITMODE, true)
 			status, ret = waitForResponce(1)

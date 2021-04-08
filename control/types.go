@@ -116,3 +116,9 @@ type SmsMessage struct {
 	Phone    string
 	Message  string
 }
+
+type routerInfo struct {
+	addr string
+	user string
+	pw string
+}

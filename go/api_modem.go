@@ -24,6 +24,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendShort(control.CMD_REQ_CONN_INFO, idx)
 		status, ret := waitForResponce(1)
 
@@ -55,6 +56,7 @@ func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
 		status, ret := waitForResponce(1)
 
@@ -83,6 +85,7 @@ func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
 		status, ret := waitForResponce(1)
 
@@ -111,6 +114,7 @@ func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
 		status, ret := waitForResponce(1)
 
@@ -139,6 +143,7 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 	idx, _, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
 		status, ret := waitForResponce(1)
 
@@ -170,6 +175,7 @@ func SetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	idx, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendFlightmode(idx, state)
 		status, ret := waitForResponce(1)
 		if ret == true {
@@ -198,6 +204,7 @@ func SetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	idx, imei, err := parseNumberImei(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendSetImei(idx, imei)
 		status, ret := waitForResponce(1)
 		if ret == true {
@@ -226,6 +233,7 @@ func SetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	idx, num, err := parseNumberSim(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
 		status, ret := waitForResponce(1)
 		if ret == true {

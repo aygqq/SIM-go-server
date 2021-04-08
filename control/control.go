@@ -58,10 +58,12 @@ var FlagHTTPWaitResp bool = false
 // FlagControlWaitResp - What chanel is in use
 var FlagControlWaitResp bool = false
 
-func waitForResponce() error {
-	var err error
+var router [2]routerInfo
 
-	FlagControlWaitResp = true
+func waitForResponce() error {
+	// FlagControlWaitResp = true
+
+	var err error
 
 	select {
 	case read := <-ControlReqChan:
@@ -82,16 +84,19 @@ func waitForResponce() error {
 func ProcSetPhones(ph ModemPhones) error {
 	var err error
 
+	FlagControlWaitResp = true
 	SendCommand(CMD_REQ_PHONES, true)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
 	if reflect.DeepEqual(modemPhReq, ph) == false {
+		FlagControlWaitResp = true
 		SendNewPhones(ph)
 		if err = waitForResponce(); err != nil {
 			return err
 		}
+		FlagControlWaitResp = true
 		SendCommand(CMD_REQ_PHONES, true)
 		if err = waitForResponce(); err != nil {
 			return err
@@ -102,6 +107,7 @@ func ProcSetPhones(ph ModemPhones) error {
 			log.Println("Phones recv\n", modemPhReq)
 			log.Println("Phones file\n", ph)
 			err = errors.New("Phones file double check failed")
+			FlagControlWaitResp = true
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
 			return err
@@ -113,11 +119,25 @@ func ProcSetPhones(ph ModemPhones) error {
 
 // ProcStart function
 func ProcStart() error {
+	err := readRouterFile("routers.csv")
+	if err != nil {
+		log.Printf("Failed to read file: %q\n", err)
+		FlagControlWaitResp = true
+		SendCommand(CMD_CFG_ERROR, true)
+		waitForResponce()
+		FlagControlWaitResp = true
+		SendCommand(CMD_PC_READY, true)
+		waitForResponce()
+		return err
+	}
+
 	ph, err := readPhonesFile("phones.csv")
 	if err != nil {
 		log.Printf("Failed to read file: %q\n", err)
+		FlagControlWaitResp = true
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
+		FlagControlWaitResp = true
 		SendCommand(CMD_PC_READY, true)
 		waitForResponce()
 		return err
@@ -126,8 +146,10 @@ func ProcStart() error {
 	err = checkPhonesFile(&ph)
 	if err != nil {
 		log.Printf("Failed to read file: %q\n", err)
+		FlagControlWaitResp = true
 		SendCommand(CMD_CFG_ERROR, true)
 		waitForResponce()
+		FlagControlWaitResp = true
 		SendCommand(CMD_PC_READY, true)
 		waitForResponce()
 		return err
@@ -136,16 +158,19 @@ func ProcStart() error {
 
 	err = ProcSetPhones(ph.Phones)
 	if err != nil {
+		FlagControlWaitResp = true
 		SendCommand(CMD_PC_READY, true)
 		waitForResponce()
 		return err
 	}
 
+	FlagControlWaitResp = true
 	SendCommand(CMD_PC_READY, true)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
+	FlagControlWaitResp = true
 	SendCommand(CMD_REQ_REASON, true)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -180,22 +205,21 @@ func procShutdown() {
 }
 
 func procChangeOperator(idx uint8, operID string) error {
-	if idx == 0 {
-		flag.Set("address", "192.168.88.1:8728")
-	} else {
-		flag.Set("address", "192.168.89.1:8728")
-	}
+
+	flag.Set("address", router[idx].addr)
+	flag.Set("username", router[idx].user)
+	flag.Set("password", router[idx].pw)
 
 	flag.Parse()
 
 	c, err := routeros.Dial(*address, *username, *password)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	reply, err := c.Run("/interface/lte/set", "=operator="+operID, "=.id=lte1")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// log.Printf("word %q\n", reply.Done.Word)
@@ -208,7 +232,7 @@ func procChangeOperator(idx uint8, operID string) error {
 
 	reply, err = c.Run("/interface/lte/get", "=value-name=operator", "=number=lte1")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// log.Printf("key %q\n", reply.Done.List[0].Key)
@@ -235,6 +259,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 
 	if PowerSt.Modem[idx] == true {
 		log.Println("\tPower off")
+		FlagControlWaitResp = true
 		SendObjectPwr(OBJECT_MODEM, idx, false)
 		if err = waitForResponce(); err != nil {
 			return err
@@ -243,6 +268,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	}
 
 	log.Println("\tPower on")
+	FlagControlWaitResp = true
 	SendObjectPwr(OBJECT_MODEM, idx, true)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -251,18 +277,21 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	time.Sleep(5 * time.Second)
 
 	log.Println("\tFlightmode on")
+	FlagControlWaitResp = true
 	SendFlightmode(idx, true)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
 	log.Println("\tChange sim")
+	FlagControlWaitResp = true
 	SendDoubleByte(CMD_CHANGE_SIM, idx, sim)
 	if err = waitForResponce(); err != nil {
 		return err
 	}
 
 	log.Println("\tLCD blink")
+	FlagControlWaitResp = true
 	SendDoubleByte(CMD_LCD_BLINK, idx, 0)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -272,6 +301,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	time.Sleep(35 * time.Second)
 
 	log.Println("\tReq modem info")
+	FlagControlWaitResp = true
 	SendShort(CMD_REQ_MODEM_INFO, idx)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -285,11 +315,13 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	log.Printf("\tIccid is %s\n", modemStReq.Iccid)
 	if modemStReq.Imei != phFile.Bank[idx][sim-1].Imei {
 		time.Sleep(5 * time.Second)
+		FlagControlWaitResp = true
 		SendSetImei(idx, phFile.Bank[idx][sim-1].Imei)
 		if err = waitForResponce(); err != nil {
 			return err
 		}
 
+		FlagControlWaitResp = true
 		SendShort(CMD_REQ_MODEM_INFO, idx)
 		if err = waitForResponce(); err != nil {
 			return err
@@ -313,6 +345,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 
 	time.Sleep(1 * time.Second)
 	log.Println("\tFlightmode off")
+	FlagControlWaitResp = true
 	SendFlightmode(idx, false)
 	if err = waitForResponce(); err != nil {
 		return err
@@ -337,8 +370,10 @@ func ProcLastConfigStart() error {
 	cfg, err := readConfigFile("config.txt")
 	if err != nil {
 		log.Printf("Failed to read file: %q\n", err)
+		FlagControlWaitResp = true
 		SendCommand(CMD_CTRL_ERROR, true)
 		waitForResponce()
+		FlagControlWaitResp = true
 		SendCommand(CMD_PC_SHUTDOWN, true)
 		waitForResponce()
 		return err
@@ -359,6 +394,13 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 	}
 	SystemSt.ReasonBuf = nil
 
+	FlagControlWaitResp = true
+	SendShort(CMD_LOCK, 0)
+	if err = waitForResponce(); err != nil {
+		log.Printf("Cmd unlock: %q\n", err)
+		return
+	}
+
 	if cfg.m2Pwr == 1 {
 		err = modemTurnOn(1, cfg.m2Sim)
 		if err != nil {
@@ -370,6 +412,7 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 			ModemSt[1].SimNum = 0
 			ModemSt[1].Phone = ""
 
+			FlagControlWaitResp = true
 			SendCommand(CMD_CFG_ERROR, true)
 			waitForResponce()
 		}
@@ -386,12 +429,14 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 				ModemSt[0].SimNum = 0
 				ModemSt[0].Phone = ""
 
+				FlagControlWaitResp = true
 				SendCommand(CMD_CFG_ERROR, true)
 				waitForResponce()
 			}
 		}
 	}
 
+	FlagControlWaitResp = true
 	SendShort(CMD_UNLOCK, 0)
 	if err = waitForResponce(); err != nil {
 		log.Printf("Cmd unlock: %q\n", err)

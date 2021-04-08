@@ -1,7 +1,7 @@
 package control
 
 import (
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -9,7 +9,7 @@ import (
 	"../crc16"
 )
 
-var flag bool = false
+var bflag bool = false
 
 func Test(t *testing.T) {
 	log.Printf("Init protocol\n")
@@ -19,39 +19,39 @@ func Test(t *testing.T) {
 	//! TODO: Table must be simmilar with PCB's table
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
 
-	flag = false
+	bflag = false
 	SendCommand(CMD_PC_READY, true)
 	time.Sleep(time.Second)
-	if flag == false {
+	if bflag == false {
 		t.Fatal("Send command failed")
 	}
 
-	flag = false
+	bflag = false
 	SendShort(CMD_LOCK, 2)
 	time.Sleep(time.Second)
-	if flag == false {
+	if bflag == false {
 		t.Fatal("Send short failed")
 	}
 
-	flag = false
+	bflag = false
 	SendSetImei(1, "1234567812345678")
 	time.Sleep(time.Second)
-	if flag == false {
+	if bflag == false {
 		t.Fatal("Send imei failed")
 	}
 
-	flag = false
+	bflag = false
 	var cfg FileConfig
 	cfg.ConnectErr = true
 	cfg.Power.Pc = true
 	cfg.Power.Modem[0] = true
 	SendConfig(cfg)
 	time.Sleep(time.Second)
-	if flag == false {
+	if bflag == false {
 		t.Fatal("Send config failed")
 	}
 
-	flag = false
+	bflag = false
 	var ph ModemPhones
 	ph.PhonesOut[0] = "111111111111"
 	ph.PhonesOut[1] = "222222222222"
@@ -62,7 +62,7 @@ func Test(t *testing.T) {
 	ph.PhonesIn[3] = "99999999999999999999999999"
 	SendNewPhones(ph)
 	time.Sleep(time.Second)
-	if flag == false {
+	if bflag == false {
 		t.Fatal("Send phones failed")
 	}
 }
@@ -85,6 +85,6 @@ func callbackTest(data []byte) {
 		return
 	}
 	log.Printf("Good crc16 %X %X\n", crc, crcIn)
-	flag = true
+	bflag = true
 	return
 }

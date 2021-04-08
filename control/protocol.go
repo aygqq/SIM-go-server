@@ -21,7 +21,6 @@ func InitProtocol() {
 
 	SmsList = list.New()
 
-	//! TODO: Table must be simmilar with PCB's table
 	table = crc16.MakeMyTable(crc16.CRC16_MY)
 }
 

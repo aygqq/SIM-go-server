@@ -22,6 +22,7 @@ func SetButtonsLock(w http.ResponseWriter, r *http.Request) {
 
 	_, state, err := parseNumberState(r)
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		if state == true {
 			control.SendShort(control.CMD_LOCK, 2)
 		} else {

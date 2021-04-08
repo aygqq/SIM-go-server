@@ -140,6 +140,7 @@ func SetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
 func GetSmsNumbers(w http.ResponseWriter, r *http.Request) {
 	var resp RespNumbers
 
+	control.FlagHTTPWaitResp = true
 	control.SendCommand(control.CMD_REQ_PHONES, true)
 	status, ret := waitForResponce(1)
 	if ret == true {
@@ -225,6 +226,7 @@ func SetSendSms(w http.ResponseWriter, r *http.Request) {
 		smsMes.ModemNum = idx
 		smsMes.Phone = phone
 		smsMes.Message = sms
+		control.FlagHTTPWaitResp = true
 		control.SendSmsMessage(&smsMes)
 		status, ret := waitForResponce(21)
 		if ret == true {
@@ -253,6 +255,7 @@ func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 	_, state, err := parseNumberState(r)
 
 	if err == 0 {
+		control.FlagHTTPWaitResp = true
 		if state == true {
 			control.SendShort(control.CMD_LOCK, 1)
 		} else {
