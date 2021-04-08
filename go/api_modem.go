@@ -32,7 +32,7 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 			res.Status = control.ConnSt[idx].Status
 			res.OperID = control.ConnSt[idx].OperID
 			res.CellID = control.ConnSt[idx].CellID
-			res.Rssi = control.ConnSt[idx].Rssi
+			res.Csq = control.ConnSt[idx].Csq
 			resp.Results = &res
 		}
 		resp.Status = status

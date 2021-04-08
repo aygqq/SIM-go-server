@@ -195,6 +195,27 @@ var routes = Routes{
 	},
 
 	Route{
+		"GetSmsModemConnByID",
+		strings.ToUpper("Get"),
+		"/sms/get/modem/conn",
+		GetSmsModemConnByID,
+	},
+
+	Route{
+		"GetSmsModemImeiByID",
+		strings.ToUpper("Get"),
+		"/sms/get/modem/imei",
+		GetSmsModemImeiByID,
+	},
+
+	Route{
+		"GetSmsModemStByID",
+		strings.ToUpper("Get"),
+		"/sms/get/modem/state",
+		GetSmsModemStByID,
+	},
+
+	Route{
 		"GetSmsNumbers",
 		strings.ToUpper("Get"),
 		"/sms/get/numbers",
@@ -220,6 +241,13 @@ var routes = Routes{
 		strings.ToUpper("Post"),
 		"/sms/lock",
 		SetSmsLock,
+	},
+
+	Route{
+		"SetSmsModemImeiByID",
+		strings.ToUpper("Post"),
+		"/sms/set/modem/imei",
+		SetSmsModemImeiByID,
 	},
 
 	Route{

@@ -18,5 +18,5 @@ type RespModemconnResults struct {
 	// ID of current base station
 	CellID uint32 `json:"base_id,omitempty"`
 	// Signal level
-	Rssi uint8 `json:"signal,omitempty"`
+	Csq uint8 `json:"signal,omitempty"`
 }

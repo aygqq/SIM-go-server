@@ -28,6 +28,12 @@ var ModemSt [2]ModemStatus
 // ConnSt - Modem connection states
 var ConnSt [2]ModemConnStatus
 
+// ModemSt - States of modems
+var SmsModemSt [2]ModemStatus
+
+// SmsConnSt - Modem connection states
+var SmsConnSt [2]ModemConnStatus
+
 // SystemSt - Some system states
 var SystemSt SystemStatus
 
@@ -221,6 +227,11 @@ func procChangeOperator(idx uint8, operID string) error {
 func modemTurnOn(idx uint8, sim uint8) error {
 	var err error
 	log.Printf("Modem turn on (num: %d, sim %d)\n", idx+1, sim)
+
+	if PowerSt.Modem[idx] == true && ModemSt[idx].SimNum == sim {
+		log.Println("Modem is working with this sim yet")
+		return nil
+	}
 
 	if PowerSt.Modem[idx] == true {
 		log.Println("\tPower off")

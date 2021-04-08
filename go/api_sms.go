@@ -18,6 +18,125 @@ import (
 	"../control"
 )
 
+func GetSmsModemConnByID(w http.ResponseWriter, r *http.Request) {
+	var res RespModemconnResults
+	var resp RespModemconn
+	resp.Results = &res
+
+	idx, _, err := parseNumberState(r)
+
+	if err == 0 {
+		control.SendShort(control.CMD_REQ_CONN_INFO, idx|0x10)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.Status = control.SmsConnSt[idx].Status
+			res.OperID = control.SmsConnSt[idx].OperID
+			res.CellID = control.SmsConnSt[idx].CellID
+			res.Csq = control.SmsConnSt[idx].Csq
+			resp.Results = &res
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
+func GetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
+	var res RespImeiResults
+	var resp RespImei
+
+	idx, _, err := parseNumberState(r)
+
+	if err == 0 {
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.Imei = control.SmsModemSt[idx].Imei
+			resp.Results = &res
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
+func GetSmsModemStByID(w http.ResponseWriter, r *http.Request) {
+	var res RespModemstateResults
+	var resp RespModemstate
+
+	idx, _, err := parseNumberState(r)
+
+	if err == 0 {
+		control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
+		status, ret := waitForResponce(1)
+
+		if ret == true {
+			res.Number = idx + 1
+			res.Flymode = control.SmsModemSt[idx].Flymode
+			res.Imei = control.SmsModemSt[idx].Imei
+			res.Iccid = control.SmsModemSt[idx].Iccid
+			res.SimNum = control.SmsModemSt[idx].SimNum
+			resp.Results = &res
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
+func SetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
+	var res RespImeiResults
+	var resp RespImei
+
+	idx, imei, err := parseNumberImei(r)
+
+	if err == 0 {
+		control.SendSetImei(idx|0x10, imei)
+		status, ret := waitForResponce(1)
+		if ret == true {
+			res.Number = idx + 1
+			res.Imei = imei
+			resp.Results = &res
+			control.SmsModemSt[idx].Imei = imei
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "INVALID_REQUEST"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
 func GetSmsNumbers(w http.ResponseWriter, r *http.Request) {
 	var resp RespNumbers
 

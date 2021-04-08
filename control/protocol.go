@@ -505,24 +505,28 @@ func recieveHandler(data []byte) {
 		var iccid = make([]byte, ICCID_SIZE)
 		copy(iccid, data[ptr:ptr+ICCID_SIZE])
 		st.Iccid = string(iccid)
+		st.Iccid = strings.Trim(st.Iccid, "\u0000")
 		ptr += ICCID_SIZE
 
 		var phone = make([]byte, PHONE_SIZE)
 		copy(phone, data[ptr:ptr+PHONE_SIZE])
 		st.Phone = string(phone)
+		st.Phone = strings.Trim(st.Phone, "\u0000")
 		ptr += PHONE_SIZE
 
 		var imei = make([]byte, IMEI_SIZE)
 		copy(imei, data[ptr:ptr+IMEI_SIZE])
 		st.Imei = string(imei)
+		st.Imei = strings.Trim(st.Imei, "\u0000")
 		ptr += IMEI_SIZE
 
-		modemStReq = st
-		ModemSt[idx].Iccid = modemStReq.Iccid
-		ModemSt[idx].Imei = modemStReq.Imei
-		ModemSt[idx].Flymode = modemStReq.Flymode
-		ModemSt[idx].SimNum = modemStReq.SimNum
-		ModemSt[idx].Phone = modemStReq.Phone
+		if (idx >> 4) == 1 {
+			idx = idx & 0x0F
+			SmsModemSt[idx] = st
+		} else {
+			modemStReq = st
+			ModemSt[idx] = st
+		}
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- 1
@@ -542,7 +546,7 @@ func recieveHandler(data []byte) {
 		st.Status = uint8(data[ptr])
 		ptr++
 
-		st.Rssi = uint8(data[ptr])
+		st.Csq = uint8(data[ptr])
 		ptr++
 
 		st.Tac = uint16(data[ptr+1]) << 8
@@ -558,14 +562,15 @@ func recieveHandler(data []byte) {
 		var oper = make([]byte, OPERID_SIZE)
 		copy(oper, data[ptr:ptr+OPERID_SIZE])
 		st.OperID = string(oper)
+		st.OperID = strings.Trim(st.OperID, "\u0000")
 		ptr += OPERID_SIZE
 
-		ConnSt[idx] = st
-		// ModemSt[idx].Iccid = modemStReq.Iccid
-		// ModemSt[idx].Imei = modemStReq.Imei
-		// ModemSt[idx].Flymode = modemStReq.Flymode
-		// ModemSt[idx].SimNum = modemStReq.SimNum
-		// ModemSt[idx].Phone = modemStReq.Phone
+		if (idx >> 4) == 1 {
+			idx = idx & 0x0F
+			SmsConnSt[idx] = st
+		} else {
+			ConnSt[idx] = st
+		}
 
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- 1
@@ -649,9 +654,11 @@ func recieveHandler(data []byte) {
 		sms.MsgType = data[ptr]
 		ptr++
 		sms.Phone = string(data[ptr : ptr+PHONE_SIZE])
+		sms.Phone = strings.Trim(sms.Phone, "\u0000")
 		ptr = ptr + PHONE_SIZE
 		msgLen := data[1] - PHONE_SIZE - 2
 		sms.Message = string(data[ptr : ptr+msgLen])
+		sms.Message = strings.Trim(sms.Message, "\r\n")
 
 		//! sms may be cleared after end of function (make(sms, 1))
 		if sms.MsgType == 1 {

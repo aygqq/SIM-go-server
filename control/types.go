@@ -67,7 +67,7 @@ type ModemStatus struct {
 
 type ModemConnStatus struct {
 	Status uint8
-	Rssi   uint8  // Signal level
+	Csq    uint8  // Signal level
 	OperID string // Current operator //!Is operId the same as operator?
 	CellID uint32 // ID of current base station
 	Tac    uint16
