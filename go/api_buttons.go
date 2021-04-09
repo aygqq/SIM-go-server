@@ -20,24 +20,28 @@ func SetButtonsLock(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	_, state, err := parseNumberState(r)
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		if state == true {
-			control.SendShort(control.CMD_LOCK, 2)
+	if control.USBChanWaitNotBusy(1000) {
+		_, state, err := parseNumberState(r)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			if state {
+				control.SendShort(control.CMD_LOCK, 2)
+			} else {
+				control.SendShort(control.CMD_UNLOCK, 2)
+			}
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = 0
+				res.State = state
+				resp.Results = &res
+				control.SystemSt.ButtonsLock = state
+			}
+			resp.Status = status
 		} else {
-			control.SendShort(control.CMD_UNLOCK, 2)
+			resp.Status = "INVALID_REQUEST"
 		}
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = 0
-			res.State = state
-			resp.Results = &res
-			control.SystemSt.ButtonsLock = state
-		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")

@@ -60,6 +60,30 @@ var FlagControlWaitResp bool = false
 
 var router [2]routerInfo
 
+var usbChanBusy bool
+
+func USBChanLock() {
+	log.Println("Lock")
+	usbChanBusy = true
+}
+
+func USBChanUnlock() {
+	log.Println("Unlock")
+	usbChanBusy = false
+}
+
+func USBChanWaitNotBusy(timeout uint32) bool {
+	var curTime uint32
+	for curTime = 0; curTime < timeout; {
+		if !usbChanBusy {
+			return true
+		}
+		time.Sleep(time.Millisecond * 100)
+		curTime += 100
+	}
+	return false
+}
+
 func waitForResponce() error {
 	// FlagControlWaitResp = true
 
@@ -119,6 +143,9 @@ func ProcSetPhones(ph ModemPhones) error {
 
 // ProcStart function
 func ProcStart() error {
+	USBChanLock()
+	defer USBChanUnlock()
+
 	err := readRouterFile("routers.csv")
 	if err != nil {
 		log.Printf("Failed to read file: %q\n", err)
@@ -387,6 +414,9 @@ func ProcLastConfigStart() error {
 // ProcModemStart - This procedure starts the modem
 func ProcModemStart(cfg *ModemPowerConfig) {
 	var err error
+
+	USBChanLock()
+	defer USBChanUnlock()
 
 	reason := string(SystemSt.ReasonBuf)
 	if !strings.HasPrefix(reason, "Last") {

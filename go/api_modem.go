@@ -21,24 +21,28 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespModemconn
 	resp.Results = &res
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendShort(control.CMD_REQ_CONN_INFO, idx)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_CONN_INFO, idx)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Status = control.ConnSt[idx].Status
-			res.OperID = control.ConnSt[idx].OperID
-			res.CellID = control.ConnSt[idx].CellID
-			res.Csq = control.ConnSt[idx].Csq
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Status = control.ConnSt[idx].Status
+				res.OperID = control.ConnSt[idx].OperID
+				res.CellID = control.ConnSt[idx].CellID
+				res.Csq = control.ConnSt[idx].Csq
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -53,21 +57,25 @@ func GetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.State = control.ModemSt[idx].Flymode
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.State = control.ModemSt[idx].Flymode
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -82,21 +90,25 @@ func GetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Imei = control.ModemSt[idx].Imei
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Imei = control.ModemSt[idx].Imei
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -111,21 +123,25 @@ func GetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	var res RespSimResults
 	var resp RespSim
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.SimNum = control.ModemSt[idx].SimNum
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.SimNum = control.ModemSt[idx].SimNum
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -140,24 +156,28 @@ func GetModemStByID(w http.ResponseWriter, r *http.Request) {
 	var res RespModemstateResults
 	var resp RespModemstate
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Flymode = control.ModemSt[idx].Flymode
-			res.Imei = control.ModemSt[idx].Imei
-			res.Iccid = control.ModemSt[idx].Iccid
-			res.SimNum = control.ModemSt[idx].SimNum
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Flymode = control.ModemSt[idx].Flymode
+				res.Imei = control.ModemSt[idx].Imei
+				res.Iccid = control.ModemSt[idx].Iccid
+				res.SimNum = control.ModemSt[idx].SimNum
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -172,21 +192,25 @@ func SetModemFlyByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	idx, state, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, state, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendFlightmode(idx, state)
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = idx + 1
-			res.State = state
-			resp.Results = &res
-			control.ModemSt[idx].Flymode = state
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendFlightmode(idx, state)
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = idx + 1
+				res.State = state
+				resp.Results = &res
+				control.ModemSt[idx].Flymode = state
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -201,21 +225,25 @@ func SetModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
 
-	idx, imei, err := parseNumberImei(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, imei, err := parseNumberImei(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendSetImei(idx, imei)
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = idx + 1
-			res.Imei = imei
-			resp.Results = &res
-			control.ModemSt[idx].Imei = imei
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendSetImei(idx, imei)
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = idx + 1
+				res.Imei = imei
+				resp.Results = &res
+				control.ModemSt[idx].Imei = imei
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -230,21 +258,25 @@ func SetModemSimByID(w http.ResponseWriter, r *http.Request) {
 	var res RespSimResults
 	var resp RespSim
 
-	idx, num, err := parseNumberSim(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, num, err := parseNumberSim(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = idx + 1
-			res.SimNum = num
-			resp.Results = &res
-			control.ModemSt[idx].SimNum = num
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendDoubleByte(control.CMD_CHANGE_SIM, idx, num)
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = idx + 1
+				res.SimNum = num
+				resp.Results = &res
+				control.ModemSt[idx].SimNum = num
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")

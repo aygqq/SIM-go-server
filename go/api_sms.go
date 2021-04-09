@@ -23,23 +23,28 @@ func GetSmsModemConnByID(w http.ResponseWriter, r *http.Request) {
 	var resp RespModemconn
 	resp.Results = &res
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.SendShort(control.CMD_REQ_CONN_INFO, idx|0x10)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_CONN_INFO, idx|0x10)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Status = control.SmsConnSt[idx].Status
-			res.OperID = control.SmsConnSt[idx].OperID
-			res.CellID = control.SmsConnSt[idx].CellID
-			res.Csq = control.SmsConnSt[idx].Csq
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Status = control.SmsConnSt[idx].Status
+				res.OperID = control.SmsConnSt[idx].OperID
+				res.CellID = control.SmsConnSt[idx].CellID
+				res.Csq = control.SmsConnSt[idx].Csq
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -54,20 +59,25 @@ func GetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Imei = control.SmsModemSt[idx].Imei
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Imei = control.SmsModemSt[idx].Imei
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -82,23 +92,28 @@ func GetSmsModemStByID(w http.ResponseWriter, r *http.Request) {
 	var res RespModemstateResults
 	var resp RespModemstate
 
-	idx, _, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, _, err := parseNumberState(r)
 
-	if err == 0 {
-		control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
-		status, ret := waitForResponce(1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendShort(control.CMD_REQ_MODEM_INFO, idx|0x10)
+			status, ret := waitForResponce(1)
 
-		if ret == true {
-			res.Number = idx + 1
-			res.Flymode = control.SmsModemSt[idx].Flymode
-			res.Imei = control.SmsModemSt[idx].Imei
-			res.Iccid = control.SmsModemSt[idx].Iccid
-			res.SimNum = control.SmsModemSt[idx].SimNum
-			resp.Results = &res
+			if ret {
+				res.Number = idx + 1
+				res.Flymode = control.SmsModemSt[idx].Flymode
+				res.Imei = control.SmsModemSt[idx].Imei
+				res.Iccid = control.SmsModemSt[idx].Iccid
+				res.SimNum = control.SmsModemSt[idx].SimNum
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -113,20 +128,25 @@ func SetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
 	var res RespImeiResults
 	var resp RespImei
 
-	idx, imei, err := parseNumberImei(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, imei, err := parseNumberImei(r)
 
-	if err == 0 {
-		control.SendSetImei(idx|0x10, imei)
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = idx + 1
-			res.Imei = imei
-			resp.Results = &res
-			control.SmsModemSt[idx].Imei = imei
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			control.SendSetImei(idx|0x10, imei)
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = idx + 1
+				res.Imei = imei
+				resp.Results = &res
+				control.SmsModemSt[idx].Imei = imei
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -140,12 +160,16 @@ func SetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
 func GetSmsNumbers(w http.ResponseWriter, r *http.Request) {
 	var resp RespNumbers
 
-	control.FlagHTTPWaitResp = true
-	control.SendCommand(control.CMD_REQ_PHONES, true)
-	status, ret := waitForResponce(1)
-	if ret == true {
-		control.GetPhonesReq(&resp.Results)
-		resp.Status = status
+	if control.USBChanWaitNotBusy(1000) {
+		control.FlagHTTPWaitResp = true
+		control.SendCommand(control.CMD_REQ_PHONES, true)
+		status, ret := waitForResponce(1)
+		if ret {
+			control.GetPhonesReq(&resp.Results)
+			resp.Status = status
+		}
+	} else {
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -188,22 +212,26 @@ func GetSmsUnknown(w http.ResponseWriter, r *http.Request) {
 func SetSmsNumbers(w http.ResponseWriter, r *http.Request) {
 	var resp RespNumbers
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("Error reading body: %v", err)
-	}
-	//str := string(body)
-	//log.Printf("Request body is %s\n", str)
+	if control.USBChanWaitNotBusy(1000) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("Error reading body: %v", err)
+		}
+		//str := string(body)
+		//log.Printf("Request body is %s\n", str)
 
-	err = json.Unmarshal(body, &resp.Results)
+		err = json.Unmarshal(body, &resp.Results)
 
-	ph := control.ParsePhones(&resp.Results)
-	err = control.ProcSetPhones(ph)
-	if err != nil {
-		resp.Status = "EXECUTE_ERROR"
+		ph := control.ParsePhones(&resp.Results)
+		err = control.ProcSetPhones(ph)
+		if err != nil {
+			resp.Status = "EXECUTE_ERROR"
+		} else {
+			control.WritePhones(ph)
+			resp.Status = "OK"
+		}
 	} else {
-		control.WritePhones(ph)
-		resp.Status = "OK"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -218,26 +246,30 @@ func SetSendSms(w http.ResponseWriter, r *http.Request) {
 	var res RespSmsResults
 	var resp RespSms
 
-	idx, phone, sms, err := parseNumberPhoneSms(r)
+	if control.USBChanWaitNotBusy(1000) {
+		idx, phone, sms, err := parseNumberPhoneSms(r)
 
-	var smsMes control.SmsMessage
+		var smsMes control.SmsMessage
 
-	if err == 0 {
-		smsMes.ModemNum = idx
-		smsMes.Phone = phone
-		smsMes.Message = sms
-		control.FlagHTTPWaitResp = true
-		control.SendSmsMessage(&smsMes)
-		status, ret := waitForResponce(21)
-		if ret == true {
-			res.Number = idx
-			res.Phone = phone
-			res.Message = sms
-			resp.Results = &res
+		if err == 0 {
+			smsMes.ModemNum = idx
+			smsMes.Phone = phone
+			smsMes.Message = sms
+			control.FlagHTTPWaitResp = true
+			control.SendSmsMessage(&smsMes)
+			status, ret := waitForResponce(21)
+			if ret {
+				res.Number = idx
+				res.Phone = phone
+				res.Message = sms
+				resp.Results = &res
+			}
+			resp.Status = status
+		} else {
+			resp.Status = "INVALID_REQUEST"
 		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -252,25 +284,29 @@ func SetSmsLock(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState
 
-	_, state, err := parseNumberState(r)
+	if control.USBChanWaitNotBusy(1000) {
+		_, state, err := parseNumberState(r)
 
-	if err == 0 {
-		control.FlagHTTPWaitResp = true
-		if state == true {
-			control.SendShort(control.CMD_LOCK, 1)
+		if err == 0 {
+			control.FlagHTTPWaitResp = true
+			if state {
+				control.SendShort(control.CMD_LOCK, 1)
+			} else {
+				control.SendShort(control.CMD_UNLOCK, 1)
+			}
+			status, ret := waitForResponce(1)
+			if ret {
+				res.Number = 0
+				res.State = state
+				resp.Results = &res
+				control.SystemSt.SmsLock = state
+			}
+			resp.Status = status
 		} else {
-			control.SendShort(control.CMD_UNLOCK, 1)
+			resp.Status = "INVALID_REQUEST"
 		}
-		status, ret := waitForResponce(1)
-		if ret == true {
-			res.Number = 0
-			res.State = state
-			resp.Results = &res
-			control.SystemSt.SmsLock = state
-		}
-		resp.Status = status
 	} else {
-		resp.Status = "INVALID_REQUEST"
+		resp.Status = "CHANEL_BUSY"
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
