@@ -8,8 +8,13 @@
  */
 package swagger
 
-type RespModemconn struct {
-	Results *RespModemconnResults `json:"results,omitempty"`
-	// Three possible statuses:   * `OK`: No errors occurred.  * `INVALID_REQUEST`: Some parameters are missing or invalid.  * `EXECUTE_ERROR`: No or wrong responce from Power Control Block.  * `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.
-	Status string `json:"status,omitempty"`
+type RespSmsmodemstateResults struct {
+	// Number
+	Number uint8 `json:"number"`
+	// ICCID выбранной сим-карты
+	Iccid string `json:"iccid,omitempty"`
+	// IMEI модема
+	Imei string `json:"imei,omitempty"`
+	// Номер телефона
+	Phone string `json:"phone,omitempty"`
 }

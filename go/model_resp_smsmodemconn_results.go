@@ -8,25 +8,13 @@
  */
 package swagger
 
-type RespModemconnResults struct {
+type RespSmsmodemconnResults struct {
 	// Number
 	Number uint8 `json:"number"`
 	// Состояние соединения
 	Status uint8 `json:"status"`
 	// Оператор
 	Operator string `json:"operator,omitempty"`
-	// ID базовой станции
-	BaseId uint32 `json:"base_id,omitempty"`
-	// Уровень сигнала CSQ
-	Csq uint8 `json:"csq,omitempty"`
-	// Уровень сигнала RSSI
-	Rssi int16 `json:"rssi,omitempty"`
-	// Внешний IP адрес
-	IpAddr string `json:"ip_addr,omitempty"`
-	// Частотный бэнд
-	Band string `json:"band,omitempty"`
-	// Время текущей сессии
-	Uptime string `json:"uptime,omitempty"`
-	// Стандарт сети
-	NetMode string `json:"net_mode,omitempty"`
+	// Уровень сигнала
+	Signal uint8 `json:"csq,omitempty"`
 }

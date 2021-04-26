@@ -7,6 +7,7 @@ import (
 	"log"
 	"os/exec"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -231,7 +232,60 @@ func procShutdown() {
 	}
 }
 
-func procChangeOperator(idx uint8, operID string) error {
+func RouterGetLteInfo(idx uint8) error {
+	log.Println("Router info request")
+	flag.Set("address", router[idx].addr)
+	flag.Set("username", router[idx].user)
+	flag.Set("password", router[idx].pw)
+
+	flag.Parse()
+
+	if !PowerSt.Modem[idx] {
+		err := errors.New("Modem is power off")
+		return err
+	}
+
+	c, err := routeros.Dial(*address, *username, *password)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	reply, err := c.Run("/ip/address/get", "=value-name=address", "=number=1")
+	if err != nil || reply.Done.Word != "!done" {
+		err = errors.New("Can't get IP address:" + err.Error())
+		return err
+	}
+	ConnSt[idx].IPAddr = reply.Done.Map["ret"]
+
+	reply, err = c.Run("/interface/lte/get", "=value-name=network-mode", "=number=lte1")
+	if err != nil || reply.Done.Word != "!done" {
+		err = errors.New("Can't get network mode" + err.Error())
+		return err
+	}
+	ConnSt[idx].NetMode = reply.Done.Map["ret"]
+
+	reply, err = c.Run("/interface/lte/get", "=value-name=band", "=number=lte1")
+	if err != nil || reply.Done.Word != "!done" {
+		err = errors.New("Can't get band" + err.Error())
+		return err
+	}
+	ConnSt[idx].Band = reply.Done.Map["ret"]
+
+	reply, err = c.Run("/interface/lte/info", "=number=lte1", "=once", "=.proplist=rssi,session-uptime,access-technology")
+	if err != nil || reply.Done.Word != "!done" {
+		err = errors.New("Can't get info" + err.Error())
+		return err
+	}
+	re := reply.Re[0]
+	rssi, _ := strconv.ParseInt(re.Map["rssi"], 10, 16)
+	ConnSt[idx].Rssi = int16(rssi)
+	ConnSt[idx].Uptime = re.Map["session-uptime"]
+
+	return err
+}
+
+func routerChangeOperator(idx uint8, operID string) error {
 
 	flag.Set("address", router[idx].addr)
 	flag.Set("username", router[idx].user)
@@ -364,7 +418,7 @@ func modemTurnOn(idx uint8, sim uint8) error {
 	time.Sleep(5 * time.Second)
 	log.Printf("\tChanging operator to %s\n", phFile.Bank[idx][sim-1].OperID)
 
-	err = procChangeOperator(idx, phFile.Bank[idx][sim-1].OperID)
+	err = routerChangeOperator(idx, phFile.Bank[idx][sim-1].OperID)
 	if err != nil {
 		return err
 	}

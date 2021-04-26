@@ -66,11 +66,16 @@ type ModemStatus struct {
 }
 
 type ModemConnStatus struct {
-	Status uint8
-	Csq    uint8  // Signal level
-	OperID string // Current operator //!Is operId the same as operator?
-	CellID uint32 // ID of current base station
-	Tac    uint16
+	Status  uint8
+	Csq     uint8  // Signal level
+	Rssi    int16  // Signal level
+	IPAddr  string // lte ip address
+	Band    string // lte band
+	NetMode string // lte network mode
+	Uptime  string // lte session uptime
+	OperID  string // Current operator
+	CellID  uint32 // ID of current base station
+	Tac     uint16 // track area zone
 }
 
 type SystemStatus struct {
@@ -120,5 +125,5 @@ type SmsMessage struct {
 type routerInfo struct {
 	addr string
 	user string
-	pw string
+	pw   string
 }

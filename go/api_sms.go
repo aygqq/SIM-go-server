@@ -19,8 +19,8 @@ import (
 )
 
 func GetSmsModemConnByID(w http.ResponseWriter, r *http.Request) {
-	var res RespModemconnResults
-	var resp RespModemconn
+	var res RespSmsmodemconnResults
+	var resp RespSmsmodemconn
 	resp.Results = &res
 
 	if control.USBChanWaitNotBusy(1000) {
@@ -34,9 +34,8 @@ func GetSmsModemConnByID(w http.ResponseWriter, r *http.Request) {
 			if ret {
 				res.Number = idx + 1
 				res.Status = control.SmsConnSt[idx].Status
-				res.OperID = control.SmsConnSt[idx].OperID
-				res.CellID = control.SmsConnSt[idx].CellID
-				res.Csq = control.SmsConnSt[idx].Csq
+				res.Operator = control.SmsConnSt[idx].OperID
+				res.Signal = control.SmsConnSt[idx].Csq
 				resp.Results = &res
 			}
 			resp.Status = status
@@ -89,8 +88,8 @@ func GetSmsModemImeiByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSmsModemStByID(w http.ResponseWriter, r *http.Request) {
-	var res RespModemstateResults
-	var resp RespModemstate
+	var res RespSmsmodemstateResults
+	var resp RespSmsmodemstate
 
 	if control.USBChanWaitNotBusy(1000) {
 		idx, _, err := parseNumberState(r)
@@ -102,10 +101,9 @@ func GetSmsModemStByID(w http.ResponseWriter, r *http.Request) {
 
 			if ret {
 				res.Number = idx + 1
-				res.Flymode = control.SmsModemSt[idx].Flymode
 				res.Imei = control.SmsModemSt[idx].Imei
 				res.Iccid = control.SmsModemSt[idx].Iccid
-				res.SimNum = control.SmsModemSt[idx].SimNum
+				res.Phone = control.SmsModemSt[idx].Phone
 				resp.Results = &res
 			}
 			resp.Status = status

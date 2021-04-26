@@ -11,6 +11,7 @@ package swagger
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"../control"
@@ -30,11 +31,20 @@ func GetModemConnByID(w http.ResponseWriter, r *http.Request) {
 			status, ret := waitForResponce(1)
 
 			if ret {
+				if er := control.RouterGetLteInfo(idx); er != nil {
+					log.Println(er)
+					status = "EXECUTE_ERROR"
+				}
 				res.Number = idx + 1
 				res.Status = control.ConnSt[idx].Status
-				res.OperID = control.ConnSt[idx].OperID
-				res.CellID = control.ConnSt[idx].CellID
+				res.Operator = control.ConnSt[idx].OperID
+				res.BaseId = control.ConnSt[idx].CellID
 				res.Csq = control.ConnSt[idx].Csq
+				res.Band = control.ConnSt[idx].Band
+				res.IpAddr = control.ConnSt[idx].IPAddr
+				res.Rssi = control.ConnSt[idx].Rssi
+				res.Uptime = control.ConnSt[idx].Uptime
+				res.NetMode = control.ConnSt[idx].NetMode
 				resp.Results = &res
 			}
 			resp.Status = status
