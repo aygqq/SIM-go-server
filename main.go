@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"./control"
+	"github.com/natefinch/lumberjack"
 
 	// WARNING!
 	// Change this to a fully-qualified import path
@@ -27,13 +28,21 @@ import (
 	sw "./go"
 )
 
+var errLog *log.Logger
+
 func main() {
 	f, errf := os.OpenFile("output.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if errf != nil {
 		log.Fatalf("Error open log file: %v", errf)
 	}
 	defer f.Close()
-	log.SetOutput(f)
+	errLog = log.New(f, "", log.Ldate|log.Ltime)
+	errLog.SetOutput(&lumberjack.Logger{
+		Filename:   "output.log",
+		MaxSize:    2,  // megabytes after which new file is created
+		MaxBackups: 10, // number of backups
+		MaxAge:     28, // days
+	})
 
 	log.Printf("Hello programm")
 
