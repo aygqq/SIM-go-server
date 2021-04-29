@@ -1,0 +1,1822 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API для взаимодействия с КУЭП",
+    "description": "Данное API сделано с целью мониторинга состояний контроллера управления электропитанием (КУЭП), а также для отправки КУЭП различных команд.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://192.168.10.1:8080",
+      "description": "Localhost server"
+    }
+  ],
+  "paths": {
+    "/power/get": {
+      "get": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Запрос «Состояния модулей питания»",
+        "operationId": "getPwrCfg",
+        "responses": {
+          "200": {
+            "description": "Структура, содержащая состояния питания",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_powercfg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Установка заданной конфигурации»",
+        "operationId": "setPwrCfg",
+        "parameters": [
+          {
+            "name": "pc",
+            "in": "query",
+            "description": "Управление питанием ЭВМ",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "wifi",
+            "in": "query",
+            "description": "Управление питанием Wifi",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "relay1",
+            "in": "query",
+            "description": "Управление питанием реле 1",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "relay2",
+            "in": "query",
+            "description": "Управление питанием реле 2",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "modem1",
+            "in": "query",
+            "description": "Управление питанием модема 1",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "modem2",
+            "in": "query",
+            "description": "Управление питанием модема 2",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "simnum1",
+            "in": "query",
+            "description": "Номер сим карты модема 1",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "simnum2",
+            "in": "query",
+            "description": "Номер сим карты модема 2",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Структура, содержащая состояния питания",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_powercfg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set/relay": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Управление реле»",
+        "operationId": "setPwrRelayByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние реле",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set/wifi": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Управление модулем питания WiFi»",
+        "operationId": "setPwrWiFi",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние модуля питания WiFi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set/pc": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Выключение мини ЭВМ»",
+        "operationId": "setDownPwrPC",
+        "responses": {
+          "200": {
+            "description": "Состояние модуля питания мини ЭВМ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set/modem": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Вкл/Откл питание БС Х»",
+        "operationId": "setPwrModemByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние модуля питания модема",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/power/set/waitmode": {
+      "post": {
+        "tags": [
+          "Power"
+        ],
+        "summary": "Команда «Войти в ждущий режим без сохранения конфигурации»",
+        "operationId": "setWaitmode",
+        "parameters": [
+          {
+            "name": "save_cfg",
+            "in": "query",
+            "description": "True для сохранения конфигурации, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Подтверждение перехода в спящий режим",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/get/state": {
+      "get": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Запрос «Статус работы модема БС»",
+        "operationId": "getModemStByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_modemstate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/get/state/flymode": {
+      "get": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Запрос «Авиарежим БС»",
+        "operationId": "getModemFlyByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние авиарежима модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/set/state/flymode": {
+      "post": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Команда «Вкл/Откл авиарежим БС Х»",
+        "operationId": "setModemFlyByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние авиарежима модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/get/state/imei": {
+      "get": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Запрос «Текущий IMEI модема БС»",
+        "operationId": "getModemImeiByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Установленный параметр IMEI модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_imei"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/set/state/imei": {
+      "post": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Команда «Установить новый IMEI модема БС»",
+        "operationId": "setModemImeiByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "imei",
+            "in": "query",
+            "description": "IMEI модема",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Установленный параметр IMEI модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_imei"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/get/state/sim": {
+      "get": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Запрос «Установленная сим-карта»",
+        "operationId": "getModemSimByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Номер выбранной сим-карты модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_sim"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/set/state/sim": {
+      "post": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Команда «Выбрать сим-карту Х на блоке У»",
+        "operationId": "setModemSimByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "sim_num",
+            "in": "query",
+            "description": "Номер сим карты",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Номер выбранной сим-карты модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_sim"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modem/get/conn": {
+      "get": {
+        "tags": [
+          "Modem"
+        ],
+        "summary": "Запрос «Статус сети модема БС»",
+        "operationId": "getModemConnByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус соединения модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_modemconn"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/get/modem/state": {
+      "get": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Запрос «Статус работы модема БУ»",
+        "operationId": "getSmsModemStByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Состояние модема БУ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_smsmodemstate"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/get/modem/conn": {
+      "get": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Запрос «Статус сети модема БУ»",
+        "operationId": "getSmsModemConnByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус соединения модема БС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_smsmodemconn"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/get/modem/imei": {
+      "get": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Запрос «Текущий IMEI модема БУ»",
+        "operationId": "getSmsModemImeiByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Установленный параметр IMEI модема БУ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_imei"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/set/modem/imei": {
+      "post": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Команда «Установить новый IMEIмодема БУ»",
+        "operationId": "setSmsModemImeiByID",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "imei",
+            "in": "query",
+            "description": "IMEI модема",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Установленный параметр IMEI модема БУ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_imei"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/get/numbers": {
+      "get": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Запрос «Разрешенные телефонные номера»",
+        "operationId": "getSmsNumbers",
+        "responses": {
+          "200": {
+            "description": "Список разрешенных номеров",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_numbers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/set/numbers": {
+      "post": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Команда «Установка разрешенных номеров»",
+        "operationId": "setSmsNumbers",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/filephone"
+        },
+        "responses": {
+          "200": {
+            "description": "Список разрешенных номеров",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_numbers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/lock": {
+      "post": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Команда «Блокировка входящих сообщений»",
+        "operationId": "setSmsLock",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Подтверждение блокировки обработки СМС",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/send": {
+      "post": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Команда «Отправить СМС сообщение»",
+        "operationId": "setSendSms",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "Порядковый номер",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint8"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Номер телефона",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "description": "Такстовое сообщение",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Подтверждение отправки СМС сообщения",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_sms"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sms/unknown": {
+      "get": {
+        "tags": [
+          "Sms"
+        ],
+        "summary": "Запрос «Неопознанные сообщения»",
+        "operationId": "getSmsUnknown",
+        "responses": {
+          "200": {
+            "description": "Прочитанное СМС сообщение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_sms"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/buttons/lock": {
+      "post": {
+        "tags": [
+          "Buttons"
+        ],
+        "summary": "Команда «Блокировка обработки кнопок»",
+        "operationId": "setButtonsLock",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "description": "True для включения, иначе false",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Подтверждение блокировки обработки кнопок выбора сим-карт",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/get/state": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Запрос «Файл состояния блока управления»",
+        "operationId": "getFileConfig",
+        "responses": {
+          "200": {
+            "description": "Файл состояния блока управления",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_filecfg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/set/state": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Команда «Задать файл состояния блока управления»",
+        "operationId": "setFileConfig",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/filecfg"
+        },
+        "responses": {
+          "200": {
+            "description": "Файл состояния блока управления",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_filecfg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/get/config": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Запрос «Файл конфигурации»",
+        "operationId": "getFilePhones",
+        "responses": {
+          "200": {
+            "description": "Файл конфигурации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_filephones"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/set/config": {
+      "post": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Команда «Задать файл конфигурации»",
+        "operationId": "setFilePhones",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/filephone"
+        },
+        "responses": {
+          "200": {
+            "description": "Файл конфигурации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resp_filephones"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "resp_powercfg": {
+        "title": "ResponsePower",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_powercfg_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        },
+        "example": {
+          "results": {
+            "power_stat": true,
+            "bat_level": 47,
+            "wifi": true,
+            "pc": true,
+            "relay1": true,
+            "relay2": true,
+            "modem1": true,
+            "modem2": true,
+            "simnum1": 1,
+            "simnum2": 2
+          },
+          "status": "OK"
+        }
+      },
+      "resp_modemstate": {
+        "title": "ResponseModemState",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_modemstate_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        },
+        "example": {
+          "results": {
+            "iccid": "654512325478527",
+            "flymode": true,
+            "phone": 79217773335,
+            "sim_num": 2,
+            "imei": 354190023896443
+          },
+          "status": "OK"
+        }
+      },
+      "resp_modemconn": {
+        "title": "ResponseModemConn",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_modemconn_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_smsmodemconn": {
+        "title": "ResponseModemConn",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_smsmodemconn_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_smsmodemstate": {
+        "title": "ResponseModemState",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_smsmodemstate_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        },
+        "example": {
+          "results": {
+            "status": 1,
+            "iccid": 654512325478527,
+            "imei": 354190023896443,
+            "phone": 79217773335
+          },
+          "status": "OK"
+        }
+      },
+      "resp_sms": {
+        "title": "ResponseSmsRecv",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_sms_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_filecfg": {
+        "title": "ResponseConfigFile",
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "string",
+            "description": "Файл состояния блока управления",
+            "example": "15312001100000"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        },
+        "example": {
+          "results": "15312001100000",
+          "status": "OK"
+        }
+      },
+      "resp_filephones": {
+        "title": "ResponsePhonesFile",
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "Файл конфигурации",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_numbers": {
+        "title": "ResponsePhones",
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "Разрешенные телефонные номера",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_state": {
+        "title": "ResponseState",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_state_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_imei": {
+        "title": "ResponseIMEI",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_imei_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_sim": {
+        "title": "ResponseSIMNum",
+        "type": "object",
+        "properties": {
+          "results": {
+            "$ref": "#/components/schemas/resp_sim_results"
+          },
+          "status": {
+            "type": "string",
+            "description": "Three possible statuses:\n \n* `OK`: No errors occurred. \n* `INVALID_REQUEST`: Some parameters are missing or invalid. \n* `EXECUTE_ERROR`: No or wrong responce from Power Control Block. \n* `UNKNOWN_ERROR`: The request could not be processed due to a server error. The request may succeed if you try again.",
+            "example": "OK"
+          }
+        }
+      },
+      "resp_powercfg_results": {
+        "type": "object",
+        "properties": {
+          "power_stat": {
+            "type": "boolean",
+            "description": "Стационарное питание или питание от батареи",
+            "example": true
+          },
+          "bat_level": {
+            "type": "integer",
+            "description": "Уровень заряда батареи",
+            "format": "uint8",
+            "example": 47
+          },
+          "pc": {
+            "type": "boolean",
+            "description": "Управление питанием ЭВМ",
+            "example": true
+          },
+          "wifi": {
+            "type": "boolean",
+            "description": "Управление питанием Wifi",
+            "example": true
+          },
+          "relay1": {
+            "type": "boolean",
+            "description": "Управление питанием реле 1",
+            "example": true
+          },
+          "relay2": {
+            "type": "boolean",
+            "description": "Управление питанием реле 2",
+            "example": true
+          },
+          "modem1": {
+            "type": "boolean",
+            "description": "Управление питанием модема 1",
+            "example": true
+          },
+          "modem2": {
+            "type": "boolean",
+            "description": "Управление питанием модема 2",
+            "example": true
+          },
+          "simnum1": {
+            "type": "integer",
+            "description": "Номер сим карты модема 1",
+            "format": "uint8",
+            "example": 1
+          },
+          "simnum2": {
+            "type": "integer",
+            "description": "Номер сим карты модема 1",
+            "format": "uint8",
+            "example": 2
+          }
+        },
+        "example": {
+          "power_stat": true,
+          "bat_level": 47,
+          "wifi": true,
+          "pc": true,
+          "relay1": true,
+          "relay2": true,
+          "modem1": true,
+          "modem2": true,
+          "simnum1": 1,
+          "simnum2": 2
+        }
+      },
+      "resp_modemstate_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер модема БС или БУ",
+            "format": "uint8",
+            "example": 1
+          },
+          "flymode": {
+            "type": "boolean",
+            "description": "Состояние авиарежима",
+            "example": true
+          },
+          "sim_num": {
+            "type": "integer",
+            "description": "Номер сим карты",
+            "format": "uint8",
+            "example": 2
+          },
+          "iccid": {
+            "type": "string",
+            "description": "ICCID выбранной сим-карты",
+            "example": "654512325478527"
+          },
+          "imei": {
+            "type": "string",
+            "description": "IMEI модема",
+            "example": "354190023896443"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Номер телефона",
+            "example": "79217773335"
+          }
+        },
+        "example": {
+          "iccid": "654512325478527",
+          "flymode": true,
+          "phone": 79217773335,
+          "sim_num": 2,
+          "imei": 354190023896443
+        }
+      },
+      "resp_smsmodemconn_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер модема БС или БУ",
+            "format": "uint8",
+            "example": 1
+          },
+          "status": {
+            "type": "integer",
+            "description": "Состояние соединения",
+            "example": 1
+          },
+          "operator": {
+            "type": "string",
+            "description": "Оператор",
+            "example": "25002"
+          },
+          "signal": {
+            "type": "integer",
+            "description": "Уровень сигнала",
+            "example": 31
+          }
+        }
+      },
+      "resp_modemconn_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер модема БС или БУ",
+            "format": "uint8",
+            "example": 1
+          },
+          "status": {
+            "type": "integer",
+            "description": "Состояние соединения",
+            "example": 1
+          },
+          "operator": {
+            "type": "string",
+            "description": "Оператор",
+            "example": "25002"
+          },
+          "base_id": {
+            "type": "integer",
+            "description": "ID базовой станции",
+            "example": 201048464
+          },
+          "csq": {
+            "type": "integer",
+            "description": "Уровень сигнала CSQ",
+            "example": 31
+          },
+          "rssi": {
+            "type": "integer",
+            "description": "Уровень сигнала RSSI",
+            "example": 31
+          },
+          "ip_addr": {
+            "type": "string",
+            "description": "Внешний IP адрес",
+            "example": "111.222.333.444/27"
+          },
+          "band": {
+            "type": "string",
+            "description": "Частотный бэнд",
+            "example": "2412"
+          },
+          "uptime": {
+            "type": "string",
+            "description": "Время текущей сессии",
+            "example": "1h30m55s"
+          },
+          "net_mode": {
+            "type": "string",
+            "description": "Стандарт сети",
+            "example": "lte"
+          }
+        }
+      },
+      "resp_smsmodemstate_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер модема БС или БУ",
+            "format": "uint8",
+            "example": 1
+          },
+          "status": {
+            "type": "integer",
+            "description": "Состояние соединения",
+            "example": 1
+          },
+          "iccid": {
+            "type": "string",
+            "description": "ICCID выбранной сим-карты",
+            "example": "654512325478527"
+          },
+          "imei": {
+            "type": "string",
+            "description": "IMEI модема",
+            "example": "354190023896443"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Номер телефона",
+            "example": "79217773335"
+          }
+        },
+        "example": {
+          "status": 1,
+          "iccid": 654512325478527,
+          "imei": 354190023896443,
+          "phone": 79217773335
+        }
+      },
+      "resp_sms_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Порядковый номер",
+            "format": "uint8",
+            "example": 1
+          },
+          "phone": {
+            "type": "string",
+            "description": "Номер телефона",
+            "example": "79217773335"
+          },
+          "message": {
+            "type": "string",
+            "description": "СМС сообщение",
+            "example": "Hello user"
+          }
+        }
+      },
+      "resp_state_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер",
+            "format": "uint8",
+            "example": 1
+          },
+          "state": {
+            "type": "boolean",
+            "description": "Состояние",
+            "example": true
+          }
+        }
+      },
+      "resp_imei_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер модема БС или БУ",
+            "format": "uint8",
+            "example": 1
+          },
+          "imei": {
+            "type": "string",
+            "description": "IMEI",
+            "example": "354190023896443"
+          }
+        }
+      },
+      "resp_sim_results": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "description": "Номер БС",
+            "format": "uint8",
+            "example": 1
+          },
+          "sim_num": {
+            "type": "integer",
+            "description": "Номер сим карты",
+            "format": "uint8",
+            "example": 2
+          }
+        }
+      }
+    },
+    "parameters": {
+      "state": {
+        "name": "state",
+        "in": "query",
+        "description": "True для включения, иначе false",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "number": {
+        "name": "number",
+        "in": "query",
+        "description": "Порядковый номер",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "integer",
+          "format": "uint8"
+        }
+      },
+      "strval": {
+        "name": "strval",
+        "in": "query",
+        "description": "Строковое значение",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "message": {
+        "name": "message",
+        "in": "query",
+        "description": "Такстовое сообщение",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "pc": {
+        "name": "pc",
+        "in": "query",
+        "description": "Управление питанием ЭВМ",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "wifi": {
+        "name": "wifi",
+        "in": "query",
+        "description": "Управление питанием WIFI",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "rel1": {
+        "name": "relay1",
+        "in": "query",
+        "description": "Управление питанием реле 1",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "rel2": {
+        "name": "relay2",
+        "in": "query",
+        "description": "Управление питанием реле 2",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "mod1": {
+        "name": "modem1",
+        "in": "query",
+        "description": "Управление питанием модема 1",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "mod2": {
+        "name": "modem2",
+        "in": "query",
+        "description": "Управление питанием модема 2",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "flymode": {
+        "name": "flymode",
+        "in": "query",
+        "description": "Состояние авиарежима",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "sim_num": {
+        "name": "sim_num",
+        "in": "query",
+        "description": "Номер сим карты",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "integer",
+          "format": "uint8"
+        }
+      },
+      "iccid": {
+        "name": "iccid",
+        "in": "query",
+        "description": "ICCID выбранной сим-карты",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "imei": {
+        "name": "imei",
+        "in": "query",
+        "description": "IMEI модема",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "phone": {
+        "name": "phone",
+        "in": "query",
+        "description": "Номер телефона",
+        "required": true,
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "file": {
+        "name": "file",
+        "in": "header",
+        "description": "Текстовый файл",
+        "required": true,
+        "style": "simple",
+        "explode": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "filecfg": {
+        "description": "Фацл Состояние блока управления",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "required": true
+      },
+      "filephone": {
+        "description": "Файл конфигурации",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": true
+      },
+      "phones": {
+        "description": "Разрешенные телефонные номера",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": true
+      }
+    }
+  }
+}
