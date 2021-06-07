@@ -462,6 +462,8 @@ func ProcLastConfigStart() error {
 
 	SendConfig(cfg)
 
+	CfgFile = cfg
+
 	return nil
 }
 

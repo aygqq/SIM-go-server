@@ -464,7 +464,14 @@ func SetConfigFile(str string) error {
 }
 
 func GetConfigFileString() string {
-	return CfgToString(CfgFile)
+	cfg, err := readConfigFile("config.txt")
+	if err != nil {
+		log.Printf("Failed to read file: %q\n", err)
+		return ""
+	} else {
+		return CfgToString(cfg)
+	}
+	return ""
 }
 
 func GetConfigFile() FileConfig {
