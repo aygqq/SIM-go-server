@@ -492,6 +492,12 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 		if err != nil {
 			log.Printf("Failed to turn on modem 2: %q\n", err)
 
+			ModemSt[0].Iccid = ""
+			ModemSt[0].Imei = ""
+			ModemSt[0].Flymode = false
+			ModemSt[0].SimNum = 0
+			ModemSt[0].Phone = ""
+
 			ModemSt[1].Iccid = ""
 			ModemSt[1].Imei = ""
 			ModemSt[1].Flymode = false
@@ -503,22 +509,26 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 			waitForResponce()
 		}
 	}
-	if err == nil {
-		if cfg.m1Pwr == 1 {
-			err = modemTurnOn(0, cfg.m1Sim)
-			if err != nil {
-				log.Printf("Failed to turn on modem 1: %q\n", err)
+	if err == nil && cfg.m1Pwr == 1 {
+		err = modemTurnOn(0, cfg.m1Sim)
+		if err != nil {
+			log.Printf("Failed to turn on modem 1: %q\n", err)
 
-				ModemSt[0].Iccid = ""
-				ModemSt[0].Imei = ""
-				ModemSt[0].Flymode = false
-				ModemSt[0].SimNum = 0
-				ModemSt[0].Phone = ""
+			ModemSt[0].Iccid = ""
+			ModemSt[0].Imei = ""
+			ModemSt[0].Flymode = false
+			ModemSt[0].SimNum = 0
+			ModemSt[0].Phone = ""
 
-				FlagControlWaitResp = true
-				SendCommand(CMD_CFG_ERROR, true)
-				waitForResponce()
-			}
+			ModemSt[1].Iccid = ""
+			ModemSt[1].Imei = ""
+			ModemSt[1].Flymode = false
+			ModemSt[1].SimNum = 0
+			ModemSt[1].Phone = ""
+
+			FlagControlWaitResp = true
+			SendCommand(CMD_CFG_ERROR, true)
+			waitForResponce()
 		}
 	}
 

@@ -418,6 +418,18 @@ func recieveHandler(data []byte) {
 	case CMD_CFG_ERROR:
 		// log.Printf("CMD_CFG_ERROR\n")
 
+		ModemSt[0].Iccid = ""
+		ModemSt[0].Imei = ""
+		ModemSt[0].Flymode = false
+		ModemSt[0].SimNum = 0
+		ModemSt[0].Phone = ""
+
+		ModemSt[1].Iccid = ""
+		ModemSt[1].Imei = ""
+		ModemSt[1].Flymode = false
+		ModemSt[1].SimNum = 0
+		ModemSt[1].Phone = ""
+
 		if FlagHTTPWaitResp == true {
 			HTTPReqChan <- data[2]
 			FlagHTTPWaitResp = false

@@ -223,6 +223,32 @@ func SetDownPwrPC(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(str))
 }
 
+func SetSystemReset(w http.ResponseWriter, r *http.Request) {
+	var res RespStateResults
+	var resp RespState
+
+	if control.USBChanWaitNotBusy(1000) {
+		control.FlagHTTPWaitResp = true
+		control.SendObjectPwr(control.OBJECT_PC, 0, true)
+		status, ret := waitForResponce(1)
+		if ret {
+			res.Number = 0
+			res.State = true
+			resp.Results = &res
+		}
+		resp.Status = status
+	} else {
+		resp.Status = "CHANEL_BUSY"
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	str, _ := json.Marshal(resp)
+	fmt.Fprintf(w, string(str))
+}
+
 func SetPwrRelayByID(w http.ResponseWriter, r *http.Request) {
 	var res RespStateResults
 	var resp RespState

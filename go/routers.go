@@ -160,6 +160,13 @@ var routes = Routes{
 	},
 
 	Route{
+		"SetSystemReset",
+		strings.ToUpper("Post"),
+		"/power/set/system_reset",
+		SetSystemReset,
+	},
+
+	Route{
 		"SetPwrCfg",
 		strings.ToUpper("Post"),
 		"/power/set",
