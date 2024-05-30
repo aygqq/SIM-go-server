@@ -474,11 +474,11 @@ func ProcModemStart(cfg *ModemPowerConfig) {
 	USBChanLock()
 	defer USBChanUnlock()
 
-	reason := string(SystemSt.ReasonBuf)
-	if !strings.HasPrefix(reason, "Last") {
-		DeleteFile("config.txt")
-	}
-	SystemSt.ReasonBuf = nil
+	// reason := string(SystemSt.ReasonBuf)
+	// if !strings.HasPrefix(reason, "Last") {
+	// 	DeleteFile("config.txt")
+	// }
+	// SystemSt.ReasonBuf = nil
 
 	FlagControlWaitResp = true
 	SendShort(CMD_LOCK, 0)
